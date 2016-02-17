@@ -26,37 +26,37 @@ public class ScaleFactorRequirementTest {
     @Test
     public void willRejectOfferWhenScaleFactorReached() throws Exception {
         when(clock.instant()).thenReturn(Instant.now());
-        assertTrue(requirement.check("taskId 1", createDummyOffer()).isValid());
+        assertTrue(requirement.check("test requirement", "taskId 1", createDummyOffer()).isValid());
         requirement.onApplicationEvent(createUpdate(Protos.TaskState.TASK_RUNNING, "taskId 1"));
 
-        assertFalse(requirement.check("taskId 2", createDummyOffer()).isValid());
+        assertFalse(requirement.check("test requirement", "taskId 2", createDummyOffer()).isValid());
     }
 
     @Test
     public void willRemoveTentativeReservations() throws Exception {
         when(clock.instant()).thenReturn(Instant.now());
-        assertTrue(requirement.check("taskId 1", createDummyOffer()).isValid());
-        assertFalse(requirement.check("taskId 2", createDummyOffer()).isValid());
+        assertTrue(requirement.check("test requirement", "taskId 1", createDummyOffer()).isValid());
+        assertFalse(requirement.check("test requirement", "taskId 2", createDummyOffer()).isValid());
 
         when(clock.instant()).thenReturn(Instant.now().plusSeconds(120));
-        assertTrue(requirement.check("taskId 3", createDummyOffer()).isValid());
+        assertTrue(requirement.check("test requirement", "taskId 3", createDummyOffer()).isValid());
     }
 
     @Test
     public void willRemoveFailedTentativeReservations() throws Exception {
         when(clock.instant()).thenReturn(Instant.now());
-        assertTrue(requirement.check("taskId 1", createDummyOffer()).isValid());
+        assertTrue(requirement.check("test requirement", "taskId 1", createDummyOffer()).isValid());
         requirement.onApplicationEvent(createUpdate(Protos.TaskState.TASK_FAILED, "taskId 1"));
 
-        assertTrue(requirement.check("taskId 2", createDummyOffer()).isValid());
+        assertTrue(requirement.check("test requirement", "taskId 2", createDummyOffer()).isValid());
     }
 
     @Test
     public void willNotAcceptTooManyOffers() throws Exception {
         when(clock.instant()).thenReturn(Instant.now());
-        assertTrue(requirement.check("taskId 1", createDummyOffer()).isValid());
+        assertTrue(requirement.check("test requirement", "taskId 1", createDummyOffer()).isValid());
 
-        assertFalse(requirement.check("taskId 2", createDummyOffer()).isValid());
+        assertFalse(requirement.check("test requirement", "taskId 2", createDummyOffer()).isValid());
     }
 
     private StatusUpdateEvent createUpdate(Protos.TaskState taskState, String taskId) {

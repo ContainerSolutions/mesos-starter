@@ -33,14 +33,14 @@ public class ScaleFactorRequirement implements ResourceRequirement, ApplicationL
     }
 
     @Override
-    public OfferEvaluation check(String taskId, Protos.Offer offer) {
+    public OfferEvaluation check(String requirement, String taskId, Protos.Offer offer) {
         final Instant now = clock.instant();
         cleanUpTentatives(now);
         final boolean valid = totalInstances() < scaleFactor.get();
         if (valid) {
             tentativeAccept.put(taskId, now.plusSeconds(60));
         }
-        return new OfferEvaluation(taskId, offer, valid);
+        return new OfferEvaluation(requirement, taskId, offer, valid);
     }
 
     private int totalInstances() {
@@ -55,7 +55,8 @@ public class ScaleFactorRequirement implements ResourceRequirement, ApplicationL
 
         if (state == Protos.TaskState.TASK_RUNNING) {
             runningTasks.add(taskId);
-        } else if (asList(Protos.TaskState.TASK_FINISHED, Protos.TaskState.TASK_KILLED, Protos.TaskState.TASK_LOST, Protos.TaskState.TASK_ERROR).contains(state)) {
+        }
+        else if (asList(Protos.TaskState.TASK_FINISHED, Protos.TaskState.TASK_KILLED, Protos.TaskState.TASK_LOST, Protos.TaskState.TASK_ERROR).contains(state)) {
             if (!runningTasks.remove(taskId)) {
                 logger.warn("Notified about unknown task taskId=" + taskId);
             }

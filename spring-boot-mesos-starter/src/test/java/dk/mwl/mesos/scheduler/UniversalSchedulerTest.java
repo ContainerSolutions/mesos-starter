@@ -41,7 +41,7 @@ public class UniversalSchedulerTest {
         Protos.Offer offer = createDummyOffer();
 
         when(uuidSupplier.get()).thenReturn(uuid);
-        when(offerStrategyFilter.evaluate(taskId, offer)).thenReturn(new OfferEvaluation(taskId, offer, false));
+        when(offerStrategyFilter.evaluate(taskId, offer)).thenReturn(new OfferEvaluation("test", taskId, offer, false));
 
         scheduler.resourceOffers(schedulerDriver, Collections.singletonList(offer));
 
@@ -55,7 +55,7 @@ public class UniversalSchedulerTest {
         Protos.TaskInfo task = TestHelper.createDummyTask();
 
         when(uuidSupplier.get()).thenReturn(uuid);
-        when(offerStrategyFilter.evaluate(taskId, offer)).thenReturn(new OfferEvaluation(taskId, offer, true));
+        when(offerStrategyFilter.evaluate(taskId, offer)).thenReturn(new OfferEvaluation("test", taskId, offer, true));
         when(taskInfoFactory.create(taskId, offer, Collections.emptyList())).thenReturn(task);
 
         scheduler.resourceOffers(schedulerDriver, Collections.singletonList(offer));

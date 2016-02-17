@@ -12,6 +12,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -35,7 +36,8 @@ public class MesosSchedulerConfiguration {
     }
 
     private ResourceRequirement simpleScalarRequirement(String name, double minimumRequirement) {
-        return (taskId, offer) -> new OfferEvaluation(
+        return (requirement, taskId, offer) -> new OfferEvaluation(
+                requirement,
                 taskId,
                 offer,
                 ResourceRequirement.scalarSum(offer, name) > minimumRequirement,
@@ -54,6 +56,11 @@ public class MesosSchedulerConfiguration {
     }
 
     @Bean
+    public Clock clock() {
+        return Clock.systemUTC();
+    }
+
+    @Bean
     @ConditionalOnMissingBean(TaskInfoFactory.class)
     @ConditionalOnProperty(prefix = "mesos.docker", name = {"image"})
     public TaskInfoFactory taskInfoFactory() {
@@ -62,7 +69,7 @@ public class MesosSchedulerConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(name = "distinctHostRequirement")
-    @ConditionalOnProperty(prefix = "mesos.resource.distinctSlave", havingValue = "true")
+    @ConditionalOnProperty(prefix = "mesos.resources", name = "distinctSlave", havingValue = "true")
     @Order(Ordered.LOWEST_PRECEDENCE)
     public ResourceRequirement distinctHostRequirement() {
         return new DistinctSlaveRequirement();
@@ -70,10 +77,10 @@ public class MesosSchedulerConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(name = "scaleFactorRequirement")
-    @ConditionalOnProperty(prefix = "mesos.resource", name = "scale")
+    @ConditionalOnProperty(prefix = "mesos.resources", name = "scale")
     @Order(Ordered.LOWEST_PRECEDENCE)
     public ResourceRequirement scaleFactorRequirement() {
-        return new ScaleFactorRequirement(environment.getProperty("mesos.resource.scale", Integer.class, 1));
+        return new ScaleFactorRequirement(environment.getProperty("mesos.resources.scale", Integer.class, 1));
     }
 
     @Bean
@@ -99,16 +106,16 @@ public class MesosSchedulerConfiguration {
     public ResourceRequirement portsRequirement() {
         final int ports = environment.getRequiredProperty("mesos.resources.ports", Integer.class);
 
-        return (taskId, offer) -> {
+        return (requiremeent, taskId, offer) -> {
             final List<Long> chosenPorts = offer.getResourcesList().stream()
                     .filter(resource -> resource.getName().equals("ports"))
                     .flatMap(resource -> resource.getRanges().getRangeList().stream())
                     .flatMapToLong(range -> LongStream.rangeClosed(range.getBegin(), range.getEnd()))
                     .limit(ports)
                     .boxed()
-                    .peek(port -> System.out.println("port = " + port))
                     .collect(Collectors.toList());
             return new OfferEvaluation(
+                    requiremeent,
                     taskId,
                     offer,
                     chosenPorts.size() == ports,
