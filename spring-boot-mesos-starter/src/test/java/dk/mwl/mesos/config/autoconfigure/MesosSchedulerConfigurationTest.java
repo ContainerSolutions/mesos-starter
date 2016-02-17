@@ -28,7 +28,7 @@ public class MesosSchedulerConfigurationTest {
         when(environment.getRequiredProperty("mesos.resources.ports", Integer.class)).thenReturn(1);
         final ResourceRequirement requirement = configuration.portsRequirement();
 
-        final OfferEvaluation ports = requirement.apply(createDummyOffer(builder -> {
+        final OfferEvaluation ports = requirement.check("taskId", createDummyOffer(builder -> {
             builder.addResources(Protos.Resource.newBuilder()
                     .setName("ports")
                     .setType(Protos.Value.Type.RANGES)

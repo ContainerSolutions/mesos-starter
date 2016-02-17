@@ -18,8 +18,7 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
     protected String applicationName;
 
     @Override
-    public Protos.TaskInfo create(Protos.Offer offer, List<Protos.Resource> resources) {
-        final String taskId = UUID.randomUUID().toString();
+    public Protos.TaskInfo create(String taskId, Protos.Offer offer, List<Protos.Resource> resources) {
         logger.info("Creating task with taskId=" + taskId + " from offerId=" + offer.getId().getValue());
         return Protos.TaskInfo.newBuilder()
                 .setName(applicationName + ".task")

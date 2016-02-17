@@ -25,6 +25,7 @@ public class OfferStrategyFilterTest {
     ResourceRequirement resourceRequirement;
 
     OfferStrategyFilter filter = new OfferStrategyFilter();
+    private String taskId = "taskId";
 
     @Before
     public void setUp() throws Exception {
@@ -34,19 +35,19 @@ public class OfferStrategyFilterTest {
 
     @Test
     public void willApproveValidOffer() throws Exception {
-        when(resourceRequirement.apply(offer)).thenReturn(new OfferEvaluation(offer, true));
+        when(resourceRequirement.check(taskId, offer)).thenReturn(new OfferEvaluation(taskId, offer, true));
 
-        final OfferEvaluation result = filter.evaluate(offer);
+        final OfferEvaluation result = filter.evaluate(taskId, offer);
         assertTrue(result.isValid());
         assertSame(offer, result.getOffer());
-        verify(resourceRequirement).apply(offer);
+        verify(resourceRequirement).check(taskId, offer);
     }
 
     @Test
     public void willRejectInvalidOffer() throws Exception {
-        when(resourceRequirement.apply(offer)).thenReturn(new OfferEvaluation(offer, false));
-        assertFalse(filter.evaluate(offer).isValid());
-        verify(resourceRequirement).apply(offer);
+        when(resourceRequirement.check(taskId, offer)).thenReturn(new OfferEvaluation(taskId, offer, false));
+        assertFalse(filter.evaluate(taskId, offer).isValid());
+        verify(resourceRequirement).check(taskId, offer);
     }
 
     @Test @Ignore("A nice to have that's not ready yet")
@@ -54,10 +55,10 @@ public class OfferStrategyFilterTest {
         ResourceRequirement decliningRequirement = mock(ResourceRequirement.class);
         filter.resourceRequirements.add(decliningRequirement);
 
-        when(resourceRequirement.apply(offer)).thenReturn(new OfferEvaluation(offer, false));
-        when(decliningRequirement.apply(offer)).thenReturn(new OfferEvaluation(offer, false));
+        when(resourceRequirement.check(taskId, offer)).thenReturn(new OfferEvaluation(taskId, offer, false));
+        when(decliningRequirement.check(taskId, offer)).thenReturn(new OfferEvaluation(taskId, offer, false));
 
-        assertFalse(filter.evaluate(offer).isValid());
+        assertFalse(filter.evaluate(taskId, offer).isValid());
 
         verifyZeroInteractions(decliningRequirement);
     }
@@ -67,12 +68,12 @@ public class OfferStrategyFilterTest {
         ResourceRequirement approvingRequirement = mock(ResourceRequirement.class);
         filter.resourceRequirements.add(approvingRequirement);
 
-        when(resourceRequirement.apply(offer)).thenReturn(new OfferEvaluation(offer, true));
-        when(approvingRequirement.apply(offer)).thenReturn(new OfferEvaluation(offer, true));
+        when(resourceRequirement.check(taskId, offer)).thenReturn(new OfferEvaluation(taskId, offer, true));
+        when(approvingRequirement.check(taskId, offer)).thenReturn(new OfferEvaluation(taskId, offer, true));
 
-        assertTrue(filter.evaluate(offer).isValid());
+        assertTrue(filter.evaluate(taskId, offer).isValid());
 
-        verify(approvingRequirement).apply(offer);
+        verify(approvingRequirement).check(taskId, offer);
     }
 
 }

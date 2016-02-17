@@ -13,8 +13,8 @@ public class DistinctSlaveRequirement implements ResourceRequirement, Applicatio
     Set<String> slaveIds = new HashSet<>();
 
     @Override
-    public OfferEvaluation apply(Protos.Offer offer) {
-        return new OfferEvaluation(offer, !slaveIds.contains(offer.getSlaveId().getValue()));
+    public OfferEvaluation check(String taskId, Protos.Offer offer) {
+        return new OfferEvaluation(taskId, offer, !slaveIds.contains(offer.getSlaveId().getValue()));
     }
 
     @Override

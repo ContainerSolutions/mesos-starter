@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 import static dk.mwl.mesos.TestHelper.createDummyOffer;
 import static org.mockito.Mockito.*;
@@ -28,11 +30,18 @@ public class UniversalSchedulerTest {
     @Mock
     SchedulerDriver schedulerDriver;
 
+    @Mock
+    Supplier<UUID> uuidSupplier;
+
+    UUID uuid = UUID.randomUUID();
+    String taskId = uuid.toString();
+
     @Test
     public void willDeclineInvalidOffers() throws Exception {
         Protos.Offer offer = createDummyOffer();
 
-        when(offerStrategyFilter.evaluate(offer)).thenReturn(new OfferEvaluation(offer, false));
+        when(uuidSupplier.get()).thenReturn(uuid);
+        when(offerStrategyFilter.evaluate(taskId, offer)).thenReturn(new OfferEvaluation(taskId, offer, false));
 
         scheduler.resourceOffers(schedulerDriver, Collections.singletonList(offer));
 
@@ -45,8 +54,9 @@ public class UniversalSchedulerTest {
         Protos.Offer offer = createDummyOffer();
         Protos.TaskInfo task = TestHelper.createDummyTask();
 
-        when(offerStrategyFilter.evaluate(offer)).thenReturn(new OfferEvaluation(offer, true));
-        when(taskInfoFactory.create(offer, Collections.emptyList())).thenReturn(task);
+        when(uuidSupplier.get()).thenReturn(uuid);
+        when(offerStrategyFilter.evaluate(taskId, offer)).thenReturn(new OfferEvaluation(taskId, offer, true));
+        when(taskInfoFactory.create(taskId, offer, Collections.emptyList())).thenReturn(task);
 
         scheduler.resourceOffers(schedulerDriver, Collections.singletonList(offer));
 

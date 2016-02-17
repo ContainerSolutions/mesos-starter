@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface TaskInfoFactory {
 
-    Protos.TaskInfo create(Protos.Offer offer, List<Protos.Resource> resources);
+    Protos.TaskInfo create(String taskId, Protos.Offer offer, List<Protos.Resource> resources);
 }

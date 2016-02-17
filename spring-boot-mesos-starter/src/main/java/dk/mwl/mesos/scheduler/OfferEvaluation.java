@@ -10,15 +10,17 @@ public class OfferEvaluation {
     Protos.Offer offer;
     List<Protos.Resource> resources;
     boolean valid;
+    String taskId;
 
-    public OfferEvaluation(Protos.Offer offer, boolean valid, List<Protos.Resource> resources) {
+    public OfferEvaluation(String taskId, Protos.Offer offer, boolean valid, List<Protos.Resource> resources) {
+        this.taskId = taskId;
         this.offer = offer;
         this.resources = resources;
         this.valid = valid;
     }
 
-    public OfferEvaluation(Protos.Offer offer, boolean valid, Protos.Resource ... resources) {
-        this(offer, valid, asList(resources));
+    public OfferEvaluation(String taskId, Protos.Offer offer, boolean valid, Protos.Resource ... resources) {
+        this(taskId, offer, valid, asList(resources));
     }
 
     public boolean isValid() {
@@ -31,5 +33,9 @@ public class OfferEvaluation {
 
     public List<Protos.Resource> getResources() {
         return resources;
+    }
+
+    public String getTaskId() {
+        return taskId;
     }
 }

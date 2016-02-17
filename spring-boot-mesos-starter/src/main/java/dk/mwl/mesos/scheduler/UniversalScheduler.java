@@ -17,9 +17,10 @@ import org.springframework.context.ApplicationListener;
 import javax.annotation.PreDestroy;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
 public class UniversalScheduler implements Scheduler, ApplicationListener<EmbeddedServletContainerInitializedEvent> {
     protected final Log logger = LogFactory.getLog(getClass());
@@ -41,6 +42,9 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
 
     @Autowired
     ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+    Supplier<UUID> uuidSupplier;
 
     protected AtomicReference<Protos.FrameworkID> frameworkID = new AtomicReference<>(Protos.FrameworkID.newBuilder().setValue("").build());
 
@@ -93,7 +97,7 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
     public void resourceOffers(SchedulerDriver schedulerDriver, List<Protos.Offer> offers) {
         offers.stream()
                 .peek(offer -> logger.info("Received offerId=" + offer.getId().getValue() + " for slaveId=" + offer.getSlaveId().getValue()))
-                .map(offer -> offerStrategyFilter.evaluate(offer))
+                .map(offer -> offerStrategyFilter.evaluate(uuidSupplier.get().toString(), offer))
                 .filter(StreamHelper.onNegative(
                         OfferEvaluation::isValid,
                         offerEvaluation -> {
@@ -103,7 +107,7 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
                 .peek(offerEvaluation -> {
                     logger.info("Accepting offer offerId=" + offerEvaluation.getOffer().getId().getValue() + " on slaveId=" + offerEvaluation.getOffer().getSlaveId().getValue());
                 })
-                .map(offerEvaluation -> new TaskProposal(offerEvaluation.offer, taskInfoFactory.create(offerEvaluation.offer, offerEvaluation.resources)))
+                .map(offerEvaluation -> new TaskProposal(offerEvaluation.offer, taskInfoFactory.create(offerEvaluation.getTaskId(), offerEvaluation.offer, offerEvaluation.resources)))
                 .forEach(taskProposal -> schedulerDriver.launchTasks(Collections.singleton(taskProposal.getOfferId()), Collections.singleton(taskProposal.getTaskInfo())));
     }
 
