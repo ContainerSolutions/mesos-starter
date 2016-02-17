@@ -5,7 +5,7 @@ spring:
 mesos:
   resources:
     distinctSlave: true
-    scale: 1
+#    scale: 1
     cpus: 0.1
     mem: 64
   docker:

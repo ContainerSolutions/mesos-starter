@@ -97,17 +97,12 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
     @Override
     public void resourceOffers(SchedulerDriver schedulerDriver, List<Protos.Offer> offers) {
         offers.stream()
-                .peek(offer -> logger.info("Received offerId=" + offer.getId().getValue() + " for slaveId=" + offer.getSlaveId().getValue()))
+                .peek(offer -> logger.debug("Received offerId=" + offer.getId().getValue() + " for slaveId=" + offer.getSlaveId().getValue()))
                 .map(offer -> offerStrategyFilter.evaluate(uuidSupplier.get().toString(), offer))
                 .filter(StreamHelper.onNegative(
                         OfferEvaluation::isValid,
-                        offerEvaluation -> {
-                            logger.info("Declining offerId=" + offerEvaluation.getOffer().getId().getValue());
-                            schedulerDriver.declineOffer(offerEvaluation.getOffer().getId());
-                        }))
-                .peek(offerEvaluation -> {
-                    logger.info("Accepting offer offerId=" + offerEvaluation.getOffer().getId().getValue() + " on slaveId=" + offerEvaluation.getOffer().getSlaveId().getValue());
-                })
+                        offerEvaluation -> schedulerDriver.declineOffer(offerEvaluation.getOffer().getId())))
+                .peek(offerEvaluation -> logger.info("Accepting offer offerId=" + offerEvaluation.getOffer().getId().getValue() + " on slaveId=" + offerEvaluation.getOffer().getSlaveId().getValue()))
                 .map(offerEvaluation -> new TaskProposal(offerEvaluation.getOffer(), taskInfoFactory.create(offerEvaluation.getTaskId(), offerEvaluation.getOffer(), offerEvaluation.getResources())))
                 .forEach(taskProposal -> schedulerDriver.launchTasks(Collections.singleton(taskProposal.getOfferId()), Collections.singleton(taskProposal.getTaskInfo())));
     }

@@ -21,8 +21,11 @@ public class OfferStrategyFilter {
         List<OfferEvaluation> offerEvaluations = resourceRequirements.entrySet().stream()
                 .map(kv -> kv.getValue().check(kv.getKey(), taskId, offer))
                 .peek(offerEvaluation -> {
-                    if (!offerEvaluation.isValid()) {
-                        logger.info("offerId=" + offer.getId().getValue() + " rejected by " + offerEvaluation.getRequirement());
+                    if (offerEvaluation.isValid()) {
+                        logger.debug("Accepting offer offerId=" + offer.getId().getValue() + ", by requirement=" + offerEvaluation.getRequirement());
+                    }
+                    else {
+                        logger.debug("Rejecting offer offerId=" + offer.getId().getValue() + ", by requirement=" + offerEvaluation.getRequirement());
                     }
                 })
                 .collect(Collectors.toList());
