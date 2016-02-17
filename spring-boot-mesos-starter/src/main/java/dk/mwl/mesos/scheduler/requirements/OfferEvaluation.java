@@ -1,4 +1,4 @@
-package dk.mwl.mesos.scheduler;
+package dk.mwl.mesos.scheduler.requirements;
 
 import org.apache.mesos.Protos;
 
@@ -39,5 +39,9 @@ public class OfferEvaluation {
 
     public String getTaskId() {
         return taskId;
+    }
+
+    public String getRequirement() {
+        return requirement;
     }
 }

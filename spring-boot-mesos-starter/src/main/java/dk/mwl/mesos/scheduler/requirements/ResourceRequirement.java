@@ -1,4 +1,4 @@
-package dk.mwl.mesos.scheduler;
+package dk.mwl.mesos.scheduler.requirements;
 
 import org.apache.mesos.Protos;
 

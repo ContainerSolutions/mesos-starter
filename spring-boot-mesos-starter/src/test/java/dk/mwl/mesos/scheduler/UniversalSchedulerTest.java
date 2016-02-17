@@ -1,6 +1,7 @@
 package dk.mwl.mesos.scheduler;
 
 import dk.mwl.mesos.TestHelper;
+import dk.mwl.mesos.scheduler.requirements.OfferEvaluation;
 import org.apache.mesos.Protos;
 import org.apache.mesos.SchedulerDriver;
 import org.junit.Test;

@@ -1,6 +1,10 @@
 package dk.mwl.mesos.config.autoconfigure;
 
 import dk.mwl.mesos.scheduler.*;
+import dk.mwl.mesos.scheduler.requirements.DistinctSlaveRequirement;
+import dk.mwl.mesos.scheduler.requirements.OfferEvaluation;
+import dk.mwl.mesos.scheduler.requirements.ResourceRequirement;
+import dk.mwl.mesos.scheduler.requirements.ScaleFactorRequirement;
 import org.apache.mesos.Protos;
 import org.apache.mesos.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;

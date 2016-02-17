@@ -1,6 +1,7 @@
 package dk.mwl.mesos.scheduler;
 
 import dk.mwl.mesos.scheduler.events.*;
+import dk.mwl.mesos.scheduler.requirements.OfferEvaluation;
 import dk.mwl.mesos.utils.StreamHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -102,12 +103,12 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
                         OfferEvaluation::isValid,
                         offerEvaluation -> {
                             logger.info("Declining offerId=" + offerEvaluation.getOffer().getId().getValue());
-                            schedulerDriver.declineOffer(offerEvaluation.offer.getId());
+                            schedulerDriver.declineOffer(offerEvaluation.getOffer().getId());
                         }))
                 .peek(offerEvaluation -> {
                     logger.info("Accepting offer offerId=" + offerEvaluation.getOffer().getId().getValue() + " on slaveId=" + offerEvaluation.getOffer().getSlaveId().getValue());
                 })
-                .map(offerEvaluation -> new TaskProposal(offerEvaluation.offer, taskInfoFactory.create(offerEvaluation.getTaskId(), offerEvaluation.offer, offerEvaluation.resources)))
+                .map(offerEvaluation -> new TaskProposal(offerEvaluation.getOffer(), taskInfoFactory.create(offerEvaluation.getTaskId(), offerEvaluation.getOffer(), offerEvaluation.getResources())))
                 .forEach(taskProposal -> schedulerDriver.launchTasks(Collections.singleton(taskProposal.getOfferId()), Collections.singleton(taskProposal.getTaskInfo())));
     }
 

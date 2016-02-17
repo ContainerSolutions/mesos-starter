@@ -1,5 +1,7 @@
 package dk.mwl.mesos.scheduler;
 
+import dk.mwl.mesos.scheduler.requirements.OfferEvaluation;
+import dk.mwl.mesos.scheduler.requirements.ResourceRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mesos.Protos;
@@ -20,7 +22,7 @@ public class OfferStrategyFilter {
                 .map(kv -> kv.getValue().check(kv.getKey(), taskId, offer))
                 .peek(offerEvaluation -> {
                     if (!offerEvaluation.isValid()) {
-                        logger.info("offerId=" + offer.getId().getValue() + " rejected by " + offerEvaluation.requirement);
+                        logger.info("offerId=" + offer.getId().getValue() + " rejected by " + offerEvaluation.getRequirement());
                     }
                 })
                 .collect(Collectors.toList());
@@ -30,7 +32,7 @@ public class OfferStrategyFilter {
                 taskId,
                 offer,
                 offerEvaluations.stream().allMatch(OfferEvaluation::isValid),
-                offerEvaluations.stream().flatMap(offerEvaluation -> offerEvaluation.resources.stream()).collect(Collectors.toList())
+                offerEvaluations.stream().flatMap(offerEvaluation -> offerEvaluation.getResources().stream()).collect(Collectors.toList())
         );
     }
 

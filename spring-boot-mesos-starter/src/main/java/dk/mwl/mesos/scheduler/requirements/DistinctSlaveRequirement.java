@@ -1,4 +1,4 @@
-package dk.mwl.mesos.scheduler;
+package dk.mwl.mesos.scheduler.requirements;
 
 import dk.mwl.mesos.scheduler.events.StatusUpdateEvent;
 import org.apache.mesos.Protos;

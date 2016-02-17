@@ -1,6 +1,8 @@
 package dk.mwl.mesos.scheduler;
 
 import dk.mwl.mesos.TestHelper;
+import dk.mwl.mesos.scheduler.requirements.OfferEvaluation;
+import dk.mwl.mesos.scheduler.requirements.ResourceRequirement;
 import org.apache.mesos.Protos;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -35,19 +37,19 @@ public class OfferStrategyFilterTest {
 
     @Test
     public void willApproveValidOffer() throws Exception {
-        when(resourceRequirement.check("test requirement", taskId, offer)).thenReturn(new OfferEvaluation("test requirement", taskId, offer, true));
+        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(new OfferEvaluation("test requirement", taskId, offer, true));
 
         final OfferEvaluation result = filter.evaluate(taskId, offer);
         assertTrue(result.isValid());
         assertSame(offer, result.getOffer());
-        verify(resourceRequirement).check("test requirement", taskId, offer);
+        verify(resourceRequirement).check("requirement 1", taskId, offer);
     }
 
     @Test
     public void willRejectInvalidOffer() throws Exception {
-        when(resourceRequirement.check("test requirement", taskId, offer)).thenReturn(new OfferEvaluation("test requirement", taskId, offer, false));
+        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(new OfferEvaluation("test requirement", taskId, offer, false));
         assertFalse(filter.evaluate(taskId, offer).isValid());
-        verify(resourceRequirement).check("test requirement", taskId, offer);
+        verify(resourceRequirement).check("requirement 1", taskId, offer);
     }
 
     @Test @Ignore("A nice to have that's not ready yet")
@@ -55,8 +57,8 @@ public class OfferStrategyFilterTest {
         ResourceRequirement decliningRequirement = mock(ResourceRequirement.class);
         filter.resourceRequirements.put("requirement 2", decliningRequirement);
 
-        when(resourceRequirement.check("test requirement", taskId, offer)).thenReturn(new OfferEvaluation("test requirement", taskId, offer, false));
-        when(decliningRequirement.check("test requirement", taskId, offer)).thenReturn(new OfferEvaluation("test requirement", taskId, offer, false));
+        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(new OfferEvaluation("requirement 1", taskId, offer, false));
+        when(decliningRequirement.check("requirement 2", taskId, offer)).thenReturn(new OfferEvaluation("requirement 2", taskId, offer, false));
 
         assertFalse(filter.evaluate(taskId, offer).isValid());
 
@@ -68,12 +70,12 @@ public class OfferStrategyFilterTest {
         ResourceRequirement approvingRequirement = mock(ResourceRequirement.class);
         filter.resourceRequirements.put("requirement 2", approvingRequirement);
 
-        when(resourceRequirement.check("test requirement", taskId, offer)).thenReturn(new OfferEvaluation("test requirement", taskId, offer, true));
-        when(approvingRequirement.check("test requirement", taskId, offer)).thenReturn(new OfferEvaluation("test requirement", taskId, offer, true));
+        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(new OfferEvaluation("requirement 1", taskId, offer, true));
+        when(approvingRequirement.check("requirement 2", taskId, offer)).thenReturn(new OfferEvaluation("requirement 2", taskId, offer, true));
 
         assertTrue(filter.evaluate(taskId, offer).isValid());
 
-        verify(approvingRequirement).check("test requirement", taskId, offer);
+        verify(approvingRequirement).check("requirement 2", taskId, offer);
     }
 
 }

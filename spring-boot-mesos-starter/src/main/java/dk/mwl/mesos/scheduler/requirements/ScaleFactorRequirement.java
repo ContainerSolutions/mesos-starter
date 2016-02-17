@@ -1,4 +1,4 @@
-package dk.mwl.mesos.scheduler;
+package dk.mwl.mesos.scheduler.requirements;
 
 import dk.mwl.mesos.scheduler.events.StatusUpdateEvent;
 import org.apache.commons.logging.Log;
@@ -56,7 +56,7 @@ public class ScaleFactorRequirement implements ResourceRequirement, ApplicationL
         if (state == Protos.TaskState.TASK_RUNNING) {
             runningTasks.add(taskId);
         }
-        else if (asList(Protos.TaskState.TASK_FINISHED, Protos.TaskState.TASK_KILLED, Protos.TaskState.TASK_LOST, Protos.TaskState.TASK_ERROR).contains(state)) {
+        else if (asList(Protos.TaskState.TASK_FINISHED, Protos.TaskState.TASK_FAILED, Protos.TaskState.TASK_KILLED, Protos.TaskState.TASK_LOST, Protos.TaskState.TASK_ERROR).contains(state)) {
             if (!runningTasks.remove(taskId)) {
                 logger.warn("Notified about unknown task taskId=" + taskId);
             }

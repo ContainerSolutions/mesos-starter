@@ -1,7 +1,7 @@
 package dk.mwl.mesos.config.autoconfigure;
 
-import dk.mwl.mesos.scheduler.OfferEvaluation;
-import dk.mwl.mesos.scheduler.ResourceRequirement;
+import dk.mwl.mesos.scheduler.requirements.OfferEvaluation;
+import dk.mwl.mesos.scheduler.requirements.ResourceRequirement;
 import org.apache.mesos.Protos;
 import org.junit.Test;
 import org.junit.runner.RunWith;
