@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: Sample App
+
+mesos:
+  resources:
+    scale: 1
+    cpus: 0.1
+    mem: 64
+  docker:
+    image: tutum/hello-world:latest
