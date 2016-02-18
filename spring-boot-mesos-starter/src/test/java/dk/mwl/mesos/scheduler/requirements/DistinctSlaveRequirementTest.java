@@ -30,7 +30,6 @@ public class DistinctSlaveRequirementTest {
     public void willRejectOffersForHostWithRunningTask() throws Exception {
         when(clock.instant()).thenReturn(now);
         assertTrue(requirement.check("test requirement", taskId, createOffer("slave 1")).isValid());
-        requirement.onApplicationEvent(createUpdate(Protos.TaskState.TASK_RUNNING, taskId, "slave 1"));
         assertFalse(requirement.check("test requirement", taskId, createOffer("slave 1")).isValid());
     }
 

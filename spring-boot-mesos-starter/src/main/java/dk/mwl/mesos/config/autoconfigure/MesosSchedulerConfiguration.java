@@ -5,6 +5,8 @@ import dk.mwl.mesos.scheduler.requirements.DistinctSlaveRequirement;
 import dk.mwl.mesos.scheduler.requirements.OfferEvaluation;
 import dk.mwl.mesos.scheduler.requirements.ResourceRequirement;
 import dk.mwl.mesos.scheduler.requirements.ScaleFactorRequirement;
+import dk.mwl.mesos.scheduler.state.StateRepositoryFile;
+import dk.mwl.mesos.scheduler.state.StateRepository;
 import org.apache.mesos.Protos;
 import org.apache.mesos.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.springframework.core.env.Environment;
 import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicMarkableReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -52,6 +55,16 @@ public class MesosSchedulerConfiguration {
                         .build()
         );
 
+    }
+
+    @Bean
+    public AtomicMarkableReference<Protos.FrameworkID> frameworkId() {
+        return new AtomicMarkableReference<>(Protos.FrameworkID.newBuilder().setValue("").build(), false);
+    }
+
+    @Bean
+    public StateRepository tasksRunningRepository() {
+        return new StateRepositoryFile();
     }
 
     @Bean

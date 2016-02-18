@@ -1,6 +1,7 @@
 package dk.mwl.mesos.scheduler.requirements;
 
 import dk.mwl.mesos.scheduler.events.StatusUpdateEvent;
+import dk.mwl.mesos.scheduler.state.StateRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mesos.Protos;
@@ -15,13 +16,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.util.Arrays.asList;
-
 public class ScaleFactorRequirement implements ResourceRequirement, ApplicationListener<StatusUpdateEvent> {
     protected final Log logger = LogFactory.getLog(getClass());
 
     @Autowired
     Clock clock;
+
+    @Autowired
+    StateRepository stateRepository;
 
     AtomicInteger scaleFactor = new AtomicInteger(1);
     Set<String> runningTasks = new HashSet<>();
@@ -44,23 +46,12 @@ public class ScaleFactorRequirement implements ResourceRequirement, ApplicationL
     }
 
     private int totalInstances() {
-        return runningTasks.size() + tentativeAccept.size();
+        return stateRepository.allTaskInfos().size() + tentativeAccept.size();
     }
 
     @Override
     public void onApplicationEvent(StatusUpdateEvent event) {
-        final Protos.TaskState state = event.getTaskStatus().getState();
-        final String taskId = event.getTaskStatus().getTaskId().getValue();
-        tentativeAccept.remove(taskId);
-
-        if (state == Protos.TaskState.TASK_RUNNING) {
-            runningTasks.add(taskId);
-        }
-        else if (asList(Protos.TaskState.TASK_FINISHED, Protos.TaskState.TASK_FAILED, Protos.TaskState.TASK_KILLED, Protos.TaskState.TASK_LOST, Protos.TaskState.TASK_ERROR).contains(state)) {
-            if (!runningTasks.remove(taskId)) {
-                logger.warn("Notified about unknown task taskId=" + taskId);
-            }
-        }
+        tentativeAccept.remove(event.getTaskStatus().getTaskId().getValue());
     }
 
     private void cleanUpTentatives(Instant now) {
