@@ -5,6 +5,7 @@ import dk.mwl.mesos.scheduler.events.StatusUpdateEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mesos.Protos;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.SerializationUtils;
@@ -12,13 +13,12 @@ import org.springframework.util.SerializationUtils;
 import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.util.Arrays.asList;
+import static dk.mwl.mesos.utils.MesosHelper.isTerminalTaskState;
 
 public class StateRepositoryFile implements StateRepository {
     protected final Log logger = LogFactory.getLog(getClass());
@@ -27,12 +27,24 @@ public class StateRepositoryFile implements StateRepository {
 
     File stateHome = new File(".state");
 
+    @Value("${mesos.framework.name:default}")
+    String frameworkName;
+
     @Override
     public Optional<Protos.FrameworkID> getFrameworkID() {
-        return Arrays.stream(stateHome.listFiles())
-                .sorted((f1, f2) -> Long.compare(f1.lastModified(), f2.lastModified()))
-                .findFirst()
-                .map(file -> Protos.FrameworkID.newBuilder().setValue(file.getName()).build());
+        if (!stateHome.exists()) {
+            stateHome.mkdir();
+            return Optional.empty();
+        }
+        try {
+            File frameworkid = new File(frameworkStateHome(), "frameworkid");
+            if (!frameworkid.exists()) {
+                return Optional.empty();
+            }
+            return Optional.of(Protos.FrameworkID.newBuilder().setValue(new String(FileCopyUtils.copyToByteArray(frameworkid))).build());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to open frameworkId");
+        }
     }
 
     @EventListener
@@ -43,7 +55,7 @@ public class StateRepositoryFile implements StateRepository {
 
     @EventListener
     public void onStatusUpdate(StatusUpdateEvent event) {
-        if (asList(Protos.TaskState.TASK_FINISHED, Protos.TaskState.TASK_FAILED, Protos.TaskState.TASK_KILLED, Protos.TaskState.TASK_LOST, Protos.TaskState.TASK_ERROR).contains(event.getTaskStatus().getState())) {
+        if (isTerminalTaskState(event.getTaskStatus().getState())) {
             final Set<Protos.TaskInfo> taskInfos = allTaskInfos();
             final Optional<Protos.TaskInfo> taskInfo = taskInfos.stream().filter(task -> task.getTaskId().equals(event.getTaskStatus().getTaskId())).findFirst();
             taskInfo.ifPresent(taskInfos::remove);
@@ -53,16 +65,17 @@ public class StateRepositoryFile implements StateRepository {
 
     @PreDestroy
     public void onExit() {
-        file().delete();
+        frameworkStateHome().delete();
     }
 
     private void save(Set<Protos.TaskInfo> taskIDs) {
-        if (!stateHome.exists()) {
-            logger.info("Creating stateHome directory: " + stateHome.getAbsolutePath());
-            stateHome.mkdirs();
-        }
         try {
-            FileCopyUtils.copy(SerializationUtils.serialize(new HashSet<>(taskIDs)), file());
+            if (!stateHome.exists()) {
+                logger.info("Creating stateHome directory: " + stateHome.getAbsolutePath());
+                stateHome.mkdirs();
+                FileCopyUtils.copy(frameworkId.get().toByteArray(), new File(frameworkStateHome(), "frameworkid"));
+            }
+            FileCopyUtils.copy(SerializationUtils.serialize(new HashSet<>(taskIDs)), tasksFile());
         } catch (IOException e) {
             logger.error("Failed to save taskID list", e);
         }
@@ -82,7 +95,7 @@ public class StateRepositoryFile implements StateRepository {
             return new HashSet<>();
         }
 
-        final File stateFile = file();
+        final File stateFile = tasksFile();
         try {
             return (Set<Protos.TaskInfo>) SerializationUtils.deserialize(FileCopyUtils.copyToByteArray(stateFile));
         } catch (Exception e) {
@@ -91,8 +104,8 @@ public class StateRepositoryFile implements StateRepository {
         }
     }
 
-    private File file() {
-        final File stateFile = new File(stateHome, frameworkId.get().getValue());
+    private File tasksFile() {
+        final File stateFile = new File(frameworkStateHome(), "tasks");
         if (!stateFile.exists()) {
             try {
                 stateFile.createNewFile();
@@ -101,5 +114,13 @@ public class StateRepositoryFile implements StateRepository {
             }
         }
         return stateFile;
+    }
+
+    private File frameworkStateHome() {
+        File file = new File(stateHome, frameworkName);
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        return file;
     }
 }

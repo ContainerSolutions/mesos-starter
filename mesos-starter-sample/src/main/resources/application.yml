@@ -9,4 +9,6 @@ mesos:
     cpus: 0.1
     mem: 64
   docker:
-    image: tutum/hello-world:latest
+#    image: tutum/hello-world:latest
+    image: alpine
+    command: sleep 60
