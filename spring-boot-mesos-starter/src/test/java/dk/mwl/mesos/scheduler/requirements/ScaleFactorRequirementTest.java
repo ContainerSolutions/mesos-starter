@@ -1,6 +1,7 @@
 package dk.mwl.mesos.scheduler.requirements;
 
 import dk.mwl.mesos.scheduler.events.StatusUpdateEvent;
+import dk.mwl.mesos.scheduler.state.StateRepository;
 import org.apache.mesos.Protos;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,8 +11,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collections;
 
 import static dk.mwl.mesos.TestHelper.createDummyOffer;
+import static dk.mwl.mesos.TestHelper.createDummyTask;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +22,9 @@ import static org.mockito.Mockito.when;
 public class ScaleFactorRequirementTest {
     @Mock
     Clock clock;
+
+    @Mock
+    StateRepository stateRepository;
 
     @InjectMocks
     ScaleFactorRequirement requirement = new ScaleFactorRequirement(1);
@@ -28,6 +34,7 @@ public class ScaleFactorRequirementTest {
         when(clock.instant()).thenReturn(Instant.now());
         assertTrue(requirement.check("test requirement", "taskId 1", createDummyOffer()).isValid());
         requirement.onApplicationEvent(createUpdate(Protos.TaskState.TASK_RUNNING, "taskId 1"));
+        when(stateRepository.allTaskInfos()).thenReturn(Collections.singleton(createDummyTask()));
 
         assertFalse(requirement.check("test requirement", "taskId 2", createDummyOffer()).isValid());
     }
