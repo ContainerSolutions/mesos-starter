@@ -23,10 +23,17 @@ public class TestHelper {
     }
 
     public static Protos.TaskInfo createDummyTask() {
-        return Protos.TaskInfo.newBuilder()
+        return createDummyTask(null);
+    }
+
+    public static Protos.TaskInfo createDummyTask(Consumer<Protos.TaskInfo.Builder> mapper) {
+        Protos.TaskInfo.Builder task = Protos.TaskInfo.newBuilder()
                 .setName("task")
                 .setTaskId(Protos.TaskID.newBuilder().setValue("task id"))
-                .setSlaveId(Protos.SlaveID.newBuilder().setValue("slave id"))
-                .build();
+                .setSlaveId(Protos.SlaveID.newBuilder().setValue("slave id"));
+        if (mapper != null) {
+            mapper.accept(task);
+        }
+        return task.build();
     }
 }

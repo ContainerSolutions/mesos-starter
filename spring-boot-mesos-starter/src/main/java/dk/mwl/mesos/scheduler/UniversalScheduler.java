@@ -2,6 +2,7 @@ package dk.mwl.mesos.scheduler;
 
 import dk.mwl.mesos.scheduler.events.*;
 import dk.mwl.mesos.scheduler.requirements.OfferEvaluation;
+import dk.mwl.mesos.scheduler.state.StateRepository;
 import dk.mwl.mesos.utils.StreamHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,9 +27,6 @@ import java.util.function.Supplier;
 public class UniversalScheduler implements Scheduler, ApplicationListener<EmbeddedServletContainerInitializedEvent> {
     protected final Log logger = LogFactory.getLog(getClass());
 
-    @Autowired
-    OfferStrategyFilter offerStrategyFilter;
-
     @Value("${mesos.master}")
     protected String mesosMaster;
 
@@ -39,6 +37,9 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
     protected String applicationName;
 
     @Autowired
+    OfferStrategyFilter offerStrategyFilter;
+
+    @Autowired
     TaskInfoFactory taskInfoFactory;
 
     @Autowired
@@ -47,7 +48,10 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
     @Autowired
     Supplier<UUID> uuidSupplier;
 
-    protected AtomicReference<Protos.FrameworkID> frameworkID = new AtomicReference<>(Protos.FrameworkID.newBuilder().setValue("").build());
+    @Autowired
+    StateRepository stateRepository;
+
+    protected AtomicReference<Protos.FrameworkID> frameworkID = new AtomicReference<>();
 
     protected AtomicReference<SchedulerDriver> driver = new AtomicReference<>();
 
@@ -62,8 +66,8 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
                 .setUser("root")
                 .setRole(mesosRole)
                 .setCheckpoint(true)
-                .setFailoverTimeout(10.0)
-                .setId(frameworkID.get());
+                .setFailoverTimeout(60.0)
+                .setId(stateRepository.getFrameworkID().orElseGet(() -> Protos.FrameworkID.newBuilder().setValue("").build()));
 
         logger.info("Starting Framework");
 
@@ -104,7 +108,10 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
                         offerEvaluation -> schedulerDriver.declineOffer(offerEvaluation.getOffer().getId())))
                 .peek(offerEvaluation -> logger.info("Accepting offer offerId=" + offerEvaluation.getOffer().getId().getValue() + " on slaveId=" + offerEvaluation.getOffer().getSlaveId().getValue()))
                 .map(offerEvaluation -> new TaskProposal(offerEvaluation.getOffer(), taskInfoFactory.create(offerEvaluation.getTaskId(), offerEvaluation.getOffer(), offerEvaluation.getResources())))
-                .forEach(taskProposal -> schedulerDriver.launchTasks(Collections.singleton(taskProposal.getOfferId()), Collections.singleton(taskProposal.getTaskInfo())));
+                .forEach(taskProposal -> {
+                    schedulerDriver.launchTasks(Collections.singleton(taskProposal.getOfferId()), Collections.singleton(taskProposal.getTaskInfo()));
+                    stateRepository.store(taskProposal.taskInfo);
+                });
     }
 
     private static class TaskProposal {

@@ -1,24 +1,33 @@
 package dk.mwl.mesos.scheduler.requirements;
 
 import dk.mwl.mesos.scheduler.events.StatusUpdateEvent;
+import dk.mwl.mesos.scheduler.state.StateRepository;
 import org.apache.mesos.Protos;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.Set;
 
 import static dk.mwl.mesos.TestHelper.createDummyOffer;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DistinctSlaveRequirementTest {
     @Mock
     Clock clock;
+
+    @Mock
+    StateRepository stateRepository;
 
     @InjectMocks
     DistinctSlaveRequirement requirement = new DistinctSlaveRequirement();
@@ -27,15 +36,14 @@ public class DistinctSlaveRequirementTest {
     private Instant now = Instant.now();
 
     @Test
-    public void willRejectOffersForHostWithRunningTask() throws Exception {
+    public void willRejectOffersForHostWithTentativeRunningTask() throws Exception {
         when(clock.instant()).thenReturn(now);
         assertTrue(requirement.check("test requirement", taskId, createOffer("slave 1")).isValid());
-        requirement.onApplicationEvent(createUpdate(Protos.TaskState.TASK_RUNNING, taskId, "slave 1"));
         assertFalse(requirement.check("test requirement", taskId, createOffer("slave 1")).isValid());
     }
 
     @Test
-    public void willNotAcceptTwoOffersForSameSlave() throws Exception {
+    public void willNotAcceptTwoTentativeOffersForSameSlave() throws Exception {
         when(clock.instant()).thenReturn(now);
         assertTrue(requirement.check("test requirement", taskId, createOffer("slave 1")).isValid());
         assertFalse(requirement.check("test requirement", taskId, createOffer("slave 1")).isValid());
@@ -50,17 +58,22 @@ public class DistinctSlaveRequirementTest {
         assertTrue(requirement.check("test requirement", taskId, createOffer("slave 1")).isValid());
     }
 
+    @Test
+    public void willRejectOfferForHostWithRunningTask() {
+        when(stateRepository.allTaskInfos()).thenReturn(Collections.singleton(createTaskInfo("slave 1", taskId)));
+
+        assertFalse(requirement.check("test requirement", taskId, createOffer("slave 1")).isValid());
+    }
+
+    private Protos.TaskInfo createTaskInfo(String slave, String taskId) {
+        return Protos.TaskInfo.newBuilder()
+                .setName("test")
+                .setTaskId(Protos.TaskID.newBuilder().setValue(taskId))
+                .setSlaveId(Protos.SlaveID.newBuilder().setValue(slave))
+                .build();
+    }
+
     private Protos.Offer createOffer(String slave) {
         return createDummyOffer(builder -> builder.setSlaveId(Protos.SlaveID.newBuilder().setValue(slave)));
     }
-
-    private StatusUpdateEvent createUpdate(Protos.TaskState taskState, String taskId, String slave) {
-        return new StatusUpdateEvent(Protos.TaskStatus.newBuilder()
-                .setState(taskState)
-                .setTaskId(Protos.TaskID.newBuilder().setValue(taskId))
-                .setSlaveId(Protos.SlaveID.newBuilder().setValue(slave))
-                .build()
-        );
-    }
-
 }

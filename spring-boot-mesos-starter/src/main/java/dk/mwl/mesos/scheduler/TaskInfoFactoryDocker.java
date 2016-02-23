@@ -6,13 +6,16 @@ import org.apache.mesos.Protos;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 public class TaskInfoFactoryDocker implements TaskInfoFactory {
     protected final Log logger = LogFactory.getLog(getClass());
 
     @Value("${mesos.docker.image}")
     protected String dockerImage;
+
+    @Value("${mesos.docker.command}")
+    protected Optional<String> command;
 
     @Value("${spring.application.name}")
     protected String applicationName;
@@ -31,12 +34,18 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
                                 .setImage(dockerImage)
                         )
                 )
-                .setCommand(Protos.CommandInfo.newBuilder()
-                        .setContainer(Protos.CommandInfo.ContainerInfo.newBuilder()
-                                .setImage(dockerImage)
-                        )
-                        .setShell(false)
+                .setCommand(command()
                 )
                 .build();
     }
+
+    private Protos.CommandInfo.Builder command() {
+        Protos.CommandInfo.Builder builder = Protos.CommandInfo.newBuilder();
+        builder.setContainer(Protos.CommandInfo.ContainerInfo.newBuilder().setImage(dockerImage));
+        builder.setShell(command.isPresent());
+        command.ifPresent(builder::setValue);
+        return builder;
+    }
+
+
 }

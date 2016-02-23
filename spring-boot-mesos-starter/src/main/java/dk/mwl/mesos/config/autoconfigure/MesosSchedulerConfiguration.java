@@ -5,8 +5,13 @@ import dk.mwl.mesos.scheduler.requirements.DistinctSlaveRequirement;
 import dk.mwl.mesos.scheduler.requirements.OfferEvaluation;
 import dk.mwl.mesos.scheduler.requirements.ResourceRequirement;
 import dk.mwl.mesos.scheduler.requirements.ScaleFactorRequirement;
+import dk.mwl.mesos.scheduler.state.StateRepositoryFile;
+import dk.mwl.mesos.scheduler.state.StateRepository;
+import dk.mwl.mesos.scheduler.state.StateRepositoryZookeeper;
 import org.apache.mesos.Protos;
 import org.apache.mesos.Scheduler;
+import org.apache.mesos.state.State;
+import org.apache.mesos.state.ZooKeeperState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,6 +24,8 @@ import org.springframework.core.env.Environment;
 import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicMarkableReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -52,6 +59,34 @@ public class MesosSchedulerConfiguration {
                         .build()
         );
 
+    }
+
+    @Bean
+    public AtomicMarkableReference<Protos.FrameworkID> frameworkId() {
+        return new AtomicMarkableReference<>(Protos.FrameworkID.newBuilder().setValue("").build(), false);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "mesos.state.file", name = "location")
+    public StateRepository stateRepositoryFile() {
+        return new StateRepositoryFile();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(StateRepository.class)
+    public StateRepository stateRepositoryZookeeper() {
+        return new StateRepositoryZookeeper();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "mesos.zookeeper", name = "server")
+    public State zkState() {
+        return new ZooKeeperState(
+                environment.getRequiredProperty("mesos.zookeeper.server"),
+                1000,
+                TimeUnit.MILLISECONDS,
+                "/" + environment.getProperty("mesos.framework.name", "default")
+        );
     }
 
     @Bean

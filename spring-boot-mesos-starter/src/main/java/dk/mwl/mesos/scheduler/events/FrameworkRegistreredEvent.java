@@ -11,6 +11,10 @@ public class FrameworkRegistreredEvent extends MesosEvent {
         this.masterInfo = masterInfo;
     }
 
+    public Protos.FrameworkID getFrameworkID() {
+        return (Protos.FrameworkID) getSource();
+    }
+
     public Protos.MasterInfo getMasterInfo() {
         return masterInfo;
     }
