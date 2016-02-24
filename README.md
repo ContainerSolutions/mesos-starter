@@ -126,7 +126,7 @@ mesos.resources.mem=64
 mesos.resources.ports=1
 ```
 
-## Cluster wide system demon
+## Cluster wide system daemon
 Often operations would like to run a single application on each host in the cluster to harvest information from every single node. This can be achieved by not adding the Scale factor rule and adding the Distinct slave rule.
 
 ```
@@ -137,13 +137,13 @@ mesos.resources.mem=64
 
 Another, safer, way to achieve the same result is by assigning resources to a specific role on all nodes. I.e. by adding the following to `/etc/mesos-slave/resources`
 ```
-cpus(myDemon):0.2; mem(myDemon):64; ports(myDemon):[514-514];
+cpus(sampleDaemon):0.2; mem(sampleDaemon):64; ports(sampleDaemon):[514-514];
 ```
 
 And configure the scheduler with the following options
 
 ```
-mesos.role=myDemon
+mesos.role=sampleDaemon
 mesos.resources.distinctSlave=true
 mesos.resources.role=all
 ```
