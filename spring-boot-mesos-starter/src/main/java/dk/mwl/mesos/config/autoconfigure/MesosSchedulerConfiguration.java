@@ -99,8 +99,15 @@ public class MesosSchedulerConfiguration {
     @Bean
     @ConditionalOnMissingBean(TaskInfoFactory.class)
     @ConditionalOnProperty(prefix = "mesos.docker", name = {"image"})
-    public TaskInfoFactory taskInfoFactory() {
+    public TaskInfoFactory taskInfoFactoryDocker() {
         return new TaskInfoFactoryDocker();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(TaskInfoFactory.class)
+    @ConditionalOnProperty(prefix = "mesos.shell", name = {"command"})
+    public TaskInfoFactory taskInfoFactoryCommand() {
+        return new TaskInfoFactoryCommand();
     }
 
     @Bean

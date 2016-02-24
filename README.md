@@ -1,16 +1,13 @@
-Spring Boot starter for Mesos
-===
+# Spring Boot starter for Mesos
 
 Spring Boot starter package for writing Mesos frameworks
 
-Features
----
+## Features
 - Vertical scaling
 - Deploy executor on all slaves
 - Support for Docker containers
 
-Getting Started
----
+## Getting Started
 Start by adding the `Spring-boot-mesos-starter` dependency to your project
 
 ```
@@ -51,9 +48,7 @@ public class SampleApplication {
 
 For a complete example, see `mesos-starter-sample` module.
 
-Starting the application
----
-
+## Starting the application
 The only required parameter for the scheduler is `mesos.master`. The value of the parameter is passed directly to the Mesos Scheduler Driver which allows the following formats
 
 - `host:port`
@@ -69,9 +64,19 @@ mesos.framework.name=sampleApp1
 
 The purpose of `mesos.framework.name` is to distinguish instances of the scheduler.
 
-Offers evaluation
-===
+## Running tasks
+Currently only Docker and shell commands are supported.
 
+### Docker
+Run any Docker image by setting the `mesos.docker.image` property. Eventually by overriding the `CMD` by `mesos.docker.command`
+
+### Shell command
+Run a command on by setting the `mesos.shell.command` property.
+
+### Custom task
+Extend the `dk.mwl.mesos.scheduler.TaskInfoFactory` class to create your own task.
+
+# Offers evaluation
 Mesos-starter offers a set of offer evaluation rules
 - Physical requirements
 - Distinct slave
@@ -80,29 +85,25 @@ Mesos-starter offers a set of offer evaluation rules
 
 They all work in combination with each other, though this might change in the future.
 
-Physical requirements
----
+## Physical requirements
 Reject offers that does not have the required amount of either CPUs, memory or ports.
 At his time the `ports` property is an amount and ports are dynamically assigned. Work is being done on a rule for requiring specific ports, including privileged ports.
 
-Distinct slave
----
+## Distinct slave
 This rule will make sure that offers for hosts where the application is already running are being rejected.
 
-Scale factor
----
+## Scale factor
 This rule will make sure that only a certain number of instances are running in the Mesos cluster. It is currently not possible to change the scale factor at runtime, but it's very high on the backlog. Furthermore it'll also be possible to insert your own scale factor bean.
 It is recommended to have this rule enabled in most cases.
 
-Role assigned
----
+## Role assigned
 This rule only accept offers assigned to the Role defined in `mesos.role`.
 
-Use cases
----
+# Use cases
+
 A few good examples
 
-### Stateless web application
+## Stateless web application
 For a stateless web application that can run anywhere in the cluster with only a requirement for a single network port, the following should be sufficient
 
 ```
@@ -114,7 +115,7 @@ mesos.resources.ports=1
 
 This will run 3 instances of the application with one port exposed. Bare in mind that they all might run on the very same host.
 
-### Distributed database application
+## Distributed database application
 For a distributed database you want to run a certain number of instances and never more than one on every host. To achieve that you can enable `scale` and `distinctSlave`, like
 
 ```
@@ -125,7 +126,7 @@ mesos.resources.mem=64
 mesos.resources.ports=1
 ```
 
-### Cluster wide system demon
+## Cluster wide system demon
 Often operations would like to run a single application on each host in the cluster to harvest information from every single node. This can be achieved by not adding the Scale factor rule and adding the Distinct slave rule.
 
 ```
@@ -151,7 +152,5 @@ This way the scheduler will take all resources allocated to the role and make su
 
 It is always recommended to run the scheduler with a Mesos role and reserved resources in such cases to make sure that scheduler is being offered resources for all nodes in the cluster.
 
-Framework shutdown
-===
-
+### Framework shutdown
 The scheduler can survive `SIGKILL` or being lost (system crashes etc.). If you want to completely de-register the framework and shutdown all tasks, just stop the scheduler with a plain `SIGTERM`.

@@ -34,8 +34,7 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
                                 .setImage(dockerImage)
                         )
                 )
-                .setCommand(command()
-                )
+                .setCommand(command())
                 .build();
     }
 
