@@ -40,9 +40,6 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
     OfferStrategyFilter offerStrategyFilter;
 
     @Autowired
-    TaskInfoFactory taskInfoFactory;
-
-    @Autowired
     ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
@@ -50,6 +47,9 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
 
     @Autowired
     StateRepository stateRepository;
+
+    @Autowired
+    TaskMaterializer taskMaterializer;
 
     protected AtomicReference<Protos.FrameworkID> frameworkID = new AtomicReference<>();
 
@@ -107,29 +107,11 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
                         OfferEvaluation::isValid,
                         offerEvaluation -> schedulerDriver.declineOffer(offerEvaluation.getOffer().getId())))
                 .peek(offerEvaluation -> logger.info("Accepting offer offerId=" + offerEvaluation.getOffer().getId().getValue() + " on slaveId=" + offerEvaluation.getOffer().getSlaveId().getValue()))
-                .map(offerEvaluation -> new TaskProposal(offerEvaluation.getOffer(), taskInfoFactory.create(offerEvaluation.getTaskId(), offerEvaluation.getOffer(), offerEvaluation.getResources())))
+                .map(taskMaterializer::createProposal)
                 .forEach(taskProposal -> {
                     schedulerDriver.launchTasks(Collections.singleton(taskProposal.getOfferId()), Collections.singleton(taskProposal.getTaskInfo()));
                     stateRepository.store(taskProposal.taskInfo);
                 });
-    }
-
-    private static class TaskProposal {
-        Protos.Offer offer;
-        Protos.TaskInfo taskInfo;
-
-        public TaskProposal(Protos.Offer offer, Protos.TaskInfo taskInfo) {
-            this.offer = offer;
-            this.taskInfo = taskInfo;
-        }
-
-        public Protos.OfferID getOfferId() {
-            return offer.getId();
-        }
-
-        public Protos.TaskInfo getTaskInfo() {
-            return taskInfo;
-        }
     }
 
     @Override

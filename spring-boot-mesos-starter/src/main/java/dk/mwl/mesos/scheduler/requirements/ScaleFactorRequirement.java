@@ -26,7 +26,6 @@ public class ScaleFactorRequirement implements ResourceRequirement, ApplicationL
     StateRepository stateRepository;
 
     AtomicInteger scaleFactor = new AtomicInteger(1);
-    Set<String> runningTasks = new HashSet<>();
 
     Map<String, Instant> tentativeAccept = new ConcurrentHashMap<>();
 

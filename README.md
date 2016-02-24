@@ -76,6 +76,7 @@ Mesos-starter offers a set of offer evaluation rules
 - Physical requirements
 - Distinct slave
 - Scale factor
+- Role assigned
 
 They all work in combination with each other, though this might change in the future.
 
@@ -92,6 +93,10 @@ Scale factor
 ---
 This rule will make sure that only a certain number of instances are running in the Mesos cluster. It is currently not possible to change the scale factor at runtime, but it's very high on the backlog. Furthermore it'll also be possible to insert your own scale factor bean.
 It is recommended to have this rule enabled in most cases.
+
+Role assigned
+---
+This rule only accept offers assigned to the Role defined in `mesos.role`.
 
 Use cases
 ---
@@ -121,13 +126,28 @@ mesos.resources.ports=1
 ```
 
 ### Cluster wide system demon
-Often operations would like to run a single application on each host in the cluster. This can be achieved by not adding the Scale factor rule and adding the Distinct slave rule.
+Often operations would like to run a single application on each host in the cluster to harvest information from every single node. This can be achieved by not adding the Scale factor rule and adding the Distinct slave rule.
 
 ```
 mesos.resources.distinctSlave=true
 mesos.resources.cpus=0.1
 mesos.resources.mem=64
 ```
+
+Another, safer, way to achieve the same result is by assigning resources to a specific role on all nodes. I.e. by adding the following to `/etc/mesos-slave/resources`
+```
+cpus(myDemon):0.2; mem(myDemon):64; ports(myDemon):[514-514];
+```
+
+And configure the scheduler with the following options
+
+```
+mesos.role=myDemon
+mesos.resources.distinctSlave=true
+mesos.resources.role=all
+```
+
+This way the scheduler will take all resources allocated to the role and make sure it's only running once in every single slave.
 
 It is always recommended to run the scheduler with a Mesos role and reserved resources in such cases to make sure that scheduler is being offered resources for all nodes in the cluster.
 

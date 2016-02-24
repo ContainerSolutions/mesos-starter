@@ -1,10 +1,7 @@
 package dk.mwl.mesos.config.autoconfigure;
 
 import dk.mwl.mesos.scheduler.*;
-import dk.mwl.mesos.scheduler.requirements.DistinctSlaveRequirement;
-import dk.mwl.mesos.scheduler.requirements.OfferEvaluation;
-import dk.mwl.mesos.scheduler.requirements.ResourceRequirement;
-import dk.mwl.mesos.scheduler.requirements.ScaleFactorRequirement;
+import dk.mwl.mesos.scheduler.requirements.*;
 import dk.mwl.mesos.scheduler.state.StateRepositoryFile;
 import dk.mwl.mesos.scheduler.state.StateRepository;
 import dk.mwl.mesos.scheduler.state.StateRepositoryZookeeper;
@@ -123,6 +120,15 @@ public class MesosSchedulerConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(name = "roleRequirement")
+    @ConditionalOnProperty(prefix = "mesos.resources", name = "role", havingValue = "all")
+    @Order(Ordered.LOWEST_PRECEDENCE)
+    public ResourceRequirement roleRequirement() {
+        return new RoleRequirement();
+    }
+
+
+    @Bean
     @ConditionalOnMissingBean(name = "cpuRequirement")
     @ConditionalOnProperty(prefix = "mesos.resources", name = "cpus")
     @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -165,6 +171,11 @@ public class MesosSchedulerConfiguration {
                             .build()
             );
         };
+    }
+
+    @Bean
+    public TaskMaterializer taskMaterializer() {
+        return new TaskMaterializerMinimal();
     }
 
 }

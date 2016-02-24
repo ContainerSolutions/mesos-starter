@@ -40,6 +40,9 @@ public class UniversalSchedulerTest {
     @Mock
     StateRepository stateRepository;
 
+    @Mock
+    TaskMaterializer taskMaterializer;
+
     UUID uuid = UUID.randomUUID();
     String taskId = uuid.toString();
 
@@ -62,7 +65,9 @@ public class UniversalSchedulerTest {
         Protos.TaskInfo task = TestHelper.createDummyTask(builder -> builder.setTaskId(Protos.TaskID.newBuilder().setValue(taskId)));
 
         when(uuidSupplier.get()).thenReturn(uuid);
-        when(offerStrategyFilter.evaluate(taskId, offer)).thenReturn(new OfferEvaluation("test", taskId, offer, true));
+        OfferEvaluation offerEvaluation = new OfferEvaluation("test", taskId, offer, true);
+        when(offerStrategyFilter.evaluate(taskId, offer)).thenReturn(offerEvaluation);
+        when(taskMaterializer.createProposal(offerEvaluation)).thenReturn(new TaskProposal(offer, task));
         when(taskInfoFactory.create(taskId, offer, Collections.emptyList())).thenReturn(task);
 
         scheduler.resourceOffers(schedulerDriver, Collections.singletonList(offer));
