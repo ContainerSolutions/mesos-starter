@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>spring-boot-mesos-starter</artifactId>
+    <artifactId>spring-boot-starter-mesos</artifactId>
 
     <dependencies>
         <dependency>

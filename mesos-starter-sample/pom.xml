@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>dk.mwl.mesos</groupId>
-            <artifactId>spring-boot-mesos-starter</artifactId>
+            <artifactId>spring-boot-starter-mesos</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
