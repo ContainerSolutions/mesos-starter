@@ -2,7 +2,6 @@ package dk.mwl.mesos.config.autoconfigure;
 
 import dk.mwl.mesos.scheduler.*;
 import dk.mwl.mesos.scheduler.config.MesosConfigProperties;
-import dk.mwl.mesos.scheduler.config.ResourcesConfigProperties;
 import dk.mwl.mesos.scheduler.requirements.*;
 import dk.mwl.mesos.scheduler.state.StateRepositoryFile;
 import dk.mwl.mesos.scheduler.state.StateRepository;
@@ -104,12 +103,10 @@ public class MesosSchedulerConfiguration {
         return new MesosConfigProperties();
     }
 
-/*
     @Bean
-    public ResourcesConfigProperties dockerConfig() {
-        return new ResourcesConfigProperties();
+    public MesosProtoFactory<Protos.CommandInfo.Builder> commandInfoMesosProtoFactory() {
+        return new CommandInfoMesosProtoFactory();
     }
-*/
 
     @Bean
     @ConditionalOnMissingBean(TaskInfoFactory.class)

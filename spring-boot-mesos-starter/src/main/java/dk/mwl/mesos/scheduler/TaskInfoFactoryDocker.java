@@ -1,7 +1,6 @@
 package dk.mwl.mesos.scheduler;
 
 import dk.mwl.mesos.scheduler.config.MesosConfigProperties;
-import dk.mwl.mesos.scheduler.config.ResourcesConfigProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mesos.Protos;
@@ -10,8 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -26,6 +23,9 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
 
     @Autowired
     MesosConfigProperties mesosConfig;
+
+    @Autowired
+    MesosProtoFactory<Protos.CommandInfo.Builder> commandInfoMesosProtoFactory;
 
     @Override
     public Protos.TaskInfo create(String taskId, Protos.Offer offer, List<Protos.Resource> resources) {
@@ -47,6 +47,12 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
                 .build();
     }
 
+    private Protos.CommandInfo command() {
+        return commandInfoMesosProtoFactory.create()
+                .setContainer(Protos.CommandInfo.ContainerInfo.newBuilder().setImage(dockerImage))
+                .build();
+    }
+
     private Iterable<? extends Protos.ContainerInfo.DockerInfo.PortMapping> portMappings(List<Protos.Resource> resources) {
         Iterator<String> portsIterator = mesosConfig.getResources().getPort().iterator();
         return resources.stream()
@@ -59,22 +65,4 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
                 .peek(portMapping -> logger.debug("Mapped host=" + portMapping.getHostPort() + "=>" + portMapping.getContainerPort()))
                 .collect(Collectors.toList());
     }
-
-    private Protos.CommandInfo.Builder command() {
-        Protos.CommandInfo.Builder builder = Protos.CommandInfo.newBuilder();
-        builder.setContainer(Protos.CommandInfo.ContainerInfo.newBuilder().setImage(dockerImage));
-        Optional<String> command = Optional.ofNullable(mesosConfig.getCommand());
-        builder.setShell(command.isPresent());
-        command.ifPresent(builder::setValue);
-
-        mesosConfig.getEnvironment().entrySet().stream()
-                .map(kv -> Protos.Environment.Variable.newBuilder().setName(kv.getKey()).setValue(kv.getValue()).build())
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toList(),
-                        variables -> builder.setEnvironment(Protos.Environment.newBuilder().addAllVariables(variables))));
-
-        return builder;
-    }
-
-
 }
