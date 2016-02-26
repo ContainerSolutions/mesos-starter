@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>dk.mwl.mesos</groupId>
+        <groupId>com.containersolutions.mesos</groupId>
         <artifactId>mesos-starter</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
@@ -24,7 +24,7 @@
             <version>1.3.2.RELEASE</version>
         </dependency>
         <dependency>
-            <groupId>dk.mwl.mesos</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>spring-boot-starter-mesos</artifactId>
             <version>${project.version}</version>
         </dependency>

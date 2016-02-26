@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-dk.mwl.mesos.config.autoconfigure.MesosSchedulerConfiguration
+com.containersolutions.mesos.config.autoconfigure.MesosSchedulerConfiguration

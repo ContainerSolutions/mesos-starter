@@ -12,7 +12,7 @@ Start by adding the `spring-boot-starter-mesos` dependency to your project
 
 ```
 <dependency>
-    <groupId>dk.mwl.mesos</groupId>
+    <groupId>com.containersolutions.mesos</groupId>
     <artifactId>spring-boot-starter-mesos</artifactId>
     <version>0.1</version>
 </dependency>
@@ -74,7 +74,7 @@ Run any Docker image by setting the `mesos.docker.image` property. Eventually by
 Run a command on by setting the `mesos.shell.command` property.
 
 ### Custom task
-Extend the `dk.mwl.mesos.scheduler.TaskInfoFactory` class to create your own task.
+Extend the `TaskInfoFactory` class to create your own task.
 
 # Offers evaluation
 Mesos-starter offers a set of offer evaluation rules
