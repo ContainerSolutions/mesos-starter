@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>spring-boot-mesos-starter</module>
+        <module>spring-boot-starter-mesos</module>
         <module>mesos-starter-sample</module>
     </modules>
 

@@ -8,12 +8,12 @@ Spring Boot starter package for writing Mesos frameworks
 - Support for Docker containers
 
 ## Getting Started
-Start by adding the `Spring-boot-mesos-starter` dependency to your project
+Start by adding the `spring-boot-starter-mesos` dependency to your project
 
 ```
 <dependency>
     <groupId>dk.mwl.mesos</groupId>
-    <artifactId>spring-boot-mesos-starter</artifactId>
+    <artifactId>spring-boot-starter-mesos</artifactId>
     <version>0.1</version>
 </dependency>
 ```
