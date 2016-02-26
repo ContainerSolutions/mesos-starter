@@ -1,5 +1,7 @@
 # Spring Boot starter for Mesos
 
+[![Join the chat at https://gitter.im/ContainerSolutions/mesos-starter](https://badges.gitter.im/ContainerSolutions/mesos-starter.svg)](https://gitter.im/ContainerSolutions/mesos-starter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Spring Boot starter package for writing Mesos frameworks
 
 ## Features
