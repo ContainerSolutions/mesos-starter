@@ -1,12 +1,19 @@
 package dk.mwl.mesos.scheduler;
 
+import dk.mwl.mesos.scheduler.config.MesosConfigProperties;
+import dk.mwl.mesos.scheduler.config.ResourcesConfigProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mesos.Protos;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 public class TaskInfoFactoryDocker implements TaskInfoFactory {
     protected final Log logger = LogFactory.getLog(getClass());
@@ -14,11 +21,11 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
     @Value("${mesos.docker.image}")
     protected String dockerImage;
 
-    @Value("${mesos.docker.command}")
-    protected Optional<String> command;
-
     @Value("${spring.application.name}")
     protected String applicationName;
+
+    @Autowired
+    MesosConfigProperties mesosConfig;
 
     @Override
     public Protos.TaskInfo create(String taskId, Protos.Offer offer, List<Protos.Resource> resources) {
@@ -32,17 +39,40 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
                         .setType(Protos.ContainerInfo.Type.DOCKER)
                         .setDocker(Protos.ContainerInfo.DockerInfo.newBuilder()
                                 .setImage(dockerImage)
+                                .addAllPortMappings(portMappings(resources))
+                                .setNetwork(Protos.ContainerInfo.DockerInfo.Network.BRIDGE)
                         )
                 )
                 .setCommand(command())
                 .build();
     }
 
+    private Iterable<? extends Protos.ContainerInfo.DockerInfo.PortMapping> portMappings(List<Protos.Resource> resources) {
+        Iterator<String> portsIterator = mesosConfig.getResources().getPort().iterator();
+        return resources.stream()
+                .filter(Protos.Resource::hasRanges)
+                .filter(resource -> resource.getName().equals("ports"))
+                .flatMap(resource -> resource.getRanges().getRangeList().stream())
+                .flatMapToLong(range -> LongStream.rangeClosed(range.getBegin(), range.getEnd()))
+                .limit(mesosConfig.getResources().getPort().size())
+                .mapToObj(hostPort -> Protos.ContainerInfo.DockerInfo.PortMapping.newBuilder().setHostPort((int) hostPort).setContainerPort(Integer.parseInt(portsIterator.next())).build())
+                .peek(portMapping -> logger.debug("Mapped host=" + portMapping.getHostPort() + "=>" + portMapping.getContainerPort()))
+                .collect(Collectors.toList());
+    }
+
     private Protos.CommandInfo.Builder command() {
         Protos.CommandInfo.Builder builder = Protos.CommandInfo.newBuilder();
         builder.setContainer(Protos.CommandInfo.ContainerInfo.newBuilder().setImage(dockerImage));
+        Optional<String> command = Optional.ofNullable(mesosConfig.getCommand());
         builder.setShell(command.isPresent());
         command.ifPresent(builder::setValue);
+
+        mesosConfig.getEnvironment().entrySet().stream()
+                .map(kv -> Protos.Environment.Variable.newBuilder().setName(kv.getKey()).setValue(kv.getValue()).build())
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toList(),
+                        variables -> builder.setEnvironment(Protos.Environment.newBuilder().addAllVariables(variables))));
+
         return builder;
     }
 

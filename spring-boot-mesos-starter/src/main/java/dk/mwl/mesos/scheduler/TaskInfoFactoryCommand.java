@@ -1,5 +1,6 @@
 package dk.mwl.mesos.scheduler;
 
+import dk.mwl.mesos.scheduler.config.MesosConfigProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mesos.Protos;
@@ -13,11 +14,11 @@ import java.util.function.Supplier;
 public class TaskInfoFactoryCommand implements TaskInfoFactory {
     protected final Log logger = LogFactory.getLog(getClass());
 
-    @Value("${mesos.shell.command}")
-    protected String command;
-
     @Value("${spring.application.name}")
     protected String applicationName;
+
+    @Autowired
+    MesosConfigProperties mesosConfig;
 
     @Autowired
     Supplier<UUID> uuidSupplier;
@@ -32,7 +33,7 @@ public class TaskInfoFactoryCommand implements TaskInfoFactory {
                 .addAllResources(resources)
                 .setCommand(Protos.CommandInfo.newBuilder()
                         .setShell(true)
-                        .setValue(command))
+                        .setValue(mesosConfig.getCommand()))
                 .build();
     }
 }

@@ -1,6 +1,8 @@
 package dk.mwl.mesos.config.autoconfigure;
 
 import dk.mwl.mesos.scheduler.*;
+import dk.mwl.mesos.scheduler.config.MesosConfigProperties;
+import dk.mwl.mesos.scheduler.config.ResourcesConfigProperties;
 import dk.mwl.mesos.scheduler.requirements.*;
 import dk.mwl.mesos.scheduler.state.StateRepositoryFile;
 import dk.mwl.mesos.scheduler.state.StateRepository;
@@ -20,6 +22,7 @@ import org.springframework.core.env.Environment;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.LongSummaryStatistics;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicMarkableReference;
@@ -97,6 +100,18 @@ public class MesosSchedulerConfiguration {
     }
 
     @Bean
+    public MesosConfigProperties mesosConfig() {
+        return new MesosConfigProperties();
+    }
+
+/*
+    @Bean
+    public ResourcesConfigProperties dockerConfig() {
+        return new ResourcesConfigProperties();
+    }
+*/
+
+    @Bean
     @ConditionalOnMissingBean(TaskInfoFactory.class)
     @ConditionalOnProperty(prefix = "mesos.docker", name = {"image"})
     public TaskInfoFactory taskInfoFactoryDocker() {
@@ -105,7 +120,7 @@ public class MesosSchedulerConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(TaskInfoFactory.class)
-    @ConditionalOnProperty(prefix = "mesos.shell", name = {"command"})
+    @ConditionalOnProperty(prefix = "mesos", name = {"command"})
     public TaskInfoFactory taskInfoFactoryCommand() {
         return new TaskInfoFactoryCommand();
     }
@@ -153,28 +168,28 @@ public class MesosSchedulerConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(name = "portsRequirement")
-    @ConditionalOnProperty(prefix = "mesos.resources", name = "ports")
+    @ConditionalOnProperty(prefix = "mesos.resources", name = "port")
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    public ResourceRequirement portsRequirement() {
-        final int ports = environment.getRequiredProperty("mesos.resources.ports", Integer.class);
+    public ResourceRequirement portsRequirement(MesosConfigProperties mesosConfig) {
+        List<String> ports = mesosConfig.getResources().getPort();
 
-        return (requiremeent, taskId, offer) -> {
-            final List<Long> chosenPorts = offer.getResourcesList().stream()
+        return (requirement, taskId, offer) -> {
+            LongSummaryStatistics portsSummary = offer.getResourcesList().stream()
                     .filter(resource -> resource.getName().equals("ports"))
                     .flatMap(resource -> resource.getRanges().getRangeList().stream())
                     .flatMapToLong(range -> LongStream.rangeClosed(range.getBegin(), range.getEnd()))
-                    .limit(ports)
+                    .limit(ports.size())
                     .boxed()
-                    .collect(Collectors.toList());
+                    .collect(Collectors.summarizingLong(Long::longValue));
             return new OfferEvaluation(
-                    requiremeent,
+                    requirement,
                     taskId,
                     offer,
-                    chosenPorts.size() == ports,
+                    portsSummary.getCount() == ports.size(),
                     Protos.Resource.newBuilder()
                             .setType(Protos.Value.Type.RANGES)
                             .setName("ports")
-                            .setRanges(Protos.Value.Ranges.newBuilder().addRange(Protos.Value.Range.newBuilder().setBegin(chosenPorts.get(0)).setEnd(chosenPorts.get(0))))
+                            .setRanges(Protos.Value.Ranges.newBuilder().addRange(Protos.Value.Range.newBuilder().setBegin(portsSummary.getMin()).setEnd(portsSummary.getMax())))
                             .build()
             );
         };

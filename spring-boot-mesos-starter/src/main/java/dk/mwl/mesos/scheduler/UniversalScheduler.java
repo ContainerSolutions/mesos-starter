@@ -1,5 +1,7 @@
 package dk.mwl.mesos.scheduler;
 
+import com.google.protobuf.AbstractMessage;
+import dk.mwl.mesos.scheduler.config.MesosConfigProperties;
 import dk.mwl.mesos.scheduler.events.*;
 import dk.mwl.mesos.scheduler.requirements.OfferEvaluation;
 import dk.mwl.mesos.scheduler.state.StateRepository;
@@ -23,6 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class UniversalScheduler implements Scheduler, ApplicationListener<EmbeddedServletContainerInitializedEvent> {
     protected final Log logger = LogFactory.getLog(getClass());
@@ -30,11 +33,11 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
     @Value("${mesos.master}")
     protected String mesosMaster;
 
-    @Value("${mesos.role:*}")
-    protected String mesosRole;
-
     @Value("${spring.application.name}")
     protected String applicationName;
+
+    @Autowired
+    MesosConfigProperties mesosConfig;
 
     @Autowired
     OfferStrategyFilter offerStrategyFilter;
@@ -64,7 +67,7 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
         Protos.FrameworkInfo.Builder frameworkBuilder = Protos.FrameworkInfo.newBuilder()
                 .setName(applicationName)
                 .setUser("root")
-                .setRole(mesosRole)
+                .setRole(mesosConfig.getRole())
                 .setCheckpoint(true)
                 .setFailoverTimeout(60.0)
                 .setId(stateRepository.getFrameworkID().orElseGet(() -> Protos.FrameworkID.newBuilder().setValue("").build()));
