@@ -33,7 +33,7 @@ mesos.resources.distinctSlave=true
 mesos.resources.scale=3
 mesos.resources.cpus=0.1
 mesos.resources.mem=64
-mesos.docker.mage=tutum/hello-world:latest
+mesos.docker.image=tutum/hello-world:latest
 ```
 
 That is all you need to do if you have annotated your Spring configuration with `@SpringBootApplication` or `@EnableAutoConfiguration`.
