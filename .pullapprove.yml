@@ -1,9 +1,17 @@
 approve_by_comment: true
-approve_regex: ^Approved
+approve_regex: '^(Approved|LGTM)'
 reject_regex: ^Rejected
 reset_on_push: false
 reviewers:
-  members:
-  - mwl
-  name: default
-  required: 1
+  -
+    name: admins
+    members:
+     - mwl
+    required: 1
+  -
+    name: users
+    members:
+     - philwinder
+     - frankscholten
+     - sadovnikov
+    required: 1
