@@ -13,7 +13,7 @@ import org.apache.mesos.Scheduler;
 import org.apache.mesos.SchedulerDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 
@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-public class UniversalScheduler implements Scheduler, ApplicationListener<EmbeddedServletContainerInitializedEvent> {
+public class UniversalScheduler implements Scheduler, ApplicationListener<ApplicationReadyEvent> {
     protected final Log logger = LogFactory.getLog(getClass());
 
     @Value("${mesos.master}")
@@ -57,7 +57,7 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
     protected AtomicReference<SchedulerDriver> driver = new AtomicReference<>();
 
     @Override
-    public void onApplicationEvent(EmbeddedServletContainerInitializedEvent event) {
+    public void onApplicationEvent(ApplicationReadyEvent event) {
         start();
     }
 
@@ -77,6 +77,8 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Embedd
             throw new IllegalStateException("Driver already initialised");
         }
         driver.start();
+
+        new Thread(driver::join).start();
     }
 
     @PreDestroy
