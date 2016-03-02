@@ -78,9 +78,7 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
         }
         driver.start();
 
-        final Thread thread = new Thread(driver::join);
-        thread.setDaemon(false);
-        thread.start();
+        new Thread(driver::join).start();
     }
 
     @PreDestroy
