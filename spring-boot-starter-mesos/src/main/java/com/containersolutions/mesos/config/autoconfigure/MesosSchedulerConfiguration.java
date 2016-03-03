@@ -66,15 +66,15 @@ public class MesosSchedulerConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "mesos.state.file", name = "location")
-    public StateRepository stateRepositoryFile() {
-        return new StateRepositoryFile();
+    @ConditionalOnProperty(prefix = "mesos.zookeeper", name = "server")
+    public StateRepository stateRepositoryZookeeper() {
+        return new StateRepositoryZookeeper();
     }
 
     @Bean
     @ConditionalOnMissingBean(StateRepository.class)
-    public StateRepository stateRepositoryZookeeper() {
-        return new StateRepositoryZookeeper();
+    public StateRepository stateRepositoryFile() {
+        return new StateRepositoryFile();
     }
 
     @Bean
