@@ -1,11 +1,11 @@
 package com.containersolutions.mesos.config.autoconfigure;
 
 import com.containersolutions.mesos.scheduler.*;
-import com.containersolutions.mesos.scheduler.requirements.*;
-import com.containersolutions.mesos.scheduler.state.StateRepositoryZookeeper;
 import com.containersolutions.mesos.scheduler.config.MesosConfigProperties;
-import com.containersolutions.mesos.scheduler.state.StateRepositoryFile;
+import com.containersolutions.mesos.scheduler.requirements.*;
 import com.containersolutions.mesos.scheduler.state.StateRepository;
+import com.containersolutions.mesos.scheduler.state.StateRepositoryFile;
+import com.containersolutions.mesos.scheduler.state.StateRepositoryZookeeper;
 import org.apache.mesos.Protos;
 import org.apache.mesos.Scheduler;
 import org.apache.mesos.state.State;
@@ -198,4 +198,13 @@ public class MesosSchedulerConfiguration {
         return new TaskMaterializerMinimal();
     }
 
+    @Bean
+    public FrameworkInfoFactory frameworkInfoFactory() {
+        return new FrameworkInfoFactory();
+    }
+
+    @Bean
+    public CredentialFactory credentialFactory() {
+        return new CredentialFactory();
+    }
 }
