@@ -14,7 +14,7 @@ Start by adding the `spring-boot-starter-mesos` dependency to your project
 
 ```
 <dependency>
-    <groupId>com.containersolutions.mesos</groupId>
+    <groupId>com.github.ContainerSolutions.mesos-starter</groupId>
     <artifactId>spring-boot-starter-mesos</artifactId>
     <version>0.1</version>
 </dependency>
