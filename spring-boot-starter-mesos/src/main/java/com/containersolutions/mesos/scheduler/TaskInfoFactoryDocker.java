@@ -21,6 +21,9 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
     @Value("${spring.application.name}")
     protected String applicationName;
 
+    @Value("${mesos.docker.network:BRIDGE}")
+    protected String networkMode; // May be BRIDGE or HOST
+
     @Autowired
     MesosConfigProperties mesosConfig;
 
@@ -40,7 +43,7 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
                         .setDocker(Protos.ContainerInfo.DockerInfo.newBuilder()
                                 .setImage(dockerImage)
                                 .addAllPortMappings(portMappings(resources))
-                                .setNetwork(Protos.ContainerInfo.DockerInfo.Network.BRIDGE)
+                                        .setNetwork(Protos.ContainerInfo.DockerInfo.Network.valueOf(networkMode))
                         )
                 )
                 .setCommand(command())
