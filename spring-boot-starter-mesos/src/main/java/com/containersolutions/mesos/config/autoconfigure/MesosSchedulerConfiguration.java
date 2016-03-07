@@ -199,11 +199,13 @@ public class MesosSchedulerConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public FrameworkInfoFactory frameworkInfoFactory() {
         return new FrameworkInfoFactory();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public CredentialFactory credentialFactory() {
         return new CredentialFactory();
     }
