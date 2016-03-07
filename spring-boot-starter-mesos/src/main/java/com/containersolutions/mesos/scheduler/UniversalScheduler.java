@@ -1,7 +1,7 @@
 package com.containersolutions.mesos.scheduler;
 
-import com.containersolutions.mesos.scheduler.events.*;
 import com.containersolutions.mesos.scheduler.config.MesosConfigProperties;
+import com.containersolutions.mesos.scheduler.events.*;
 import com.containersolutions.mesos.scheduler.requirements.OfferEvaluation;
 import com.containersolutions.mesos.scheduler.state.StateRepository;
 import com.containersolutions.mesos.utils.StreamHelper;
@@ -52,6 +52,12 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
     @Autowired
     TaskMaterializer taskMaterializer;
 
+    @Autowired
+    FrameworkInfoFactory frameworkInfoFactory;
+
+    @Autowired
+    CredentialFactory credentialFactory;
+
     protected AtomicReference<Protos.FrameworkID> frameworkID = new AtomicReference<>();
 
     protected AtomicReference<SchedulerDriver> driver = new AtomicReference<>();
@@ -62,17 +68,18 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
     }
 
     public void start() {
-        Protos.FrameworkInfo.Builder frameworkBuilder = Protos.FrameworkInfo.newBuilder()
-                .setName(applicationName)
-                .setUser("root")
-                .setRole(mesosConfig.getRole())
-                .setCheckpoint(true)
-                .setFailoverTimeout(60.0)
-                .setId(stateRepository.getFrameworkID().orElseGet(() -> Protos.FrameworkID.newBuilder().setValue("").build()));
-
         logger.info("Starting Framework");
 
-        MesosSchedulerDriver driver = new MesosSchedulerDriver(this, frameworkBuilder.build(), mesosMaster);
+        MesosSchedulerDriver driver;
+        Protos.Credential credential = credentialFactory.create();
+        if (credential.isInitialized()) {
+            logger.debug("Starting scheduler driver with supplied credentials for principal: " + credential.getPrincipal());
+            driver = new MesosSchedulerDriver(this, frameworkInfoFactory.create().build(), mesosMaster, credential);
+        } else {
+            logger.debug("Starting scheduler driver without authorisation.");
+            driver = new MesosSchedulerDriver(this, frameworkInfoFactory.create().build(), mesosMaster);
+        }
+
         if (!this.driver.compareAndSet(null, driver)) {
             throw new IllegalStateException("Driver already initialised");
         }

@@ -11,6 +11,8 @@ public class MesosConfigProperties {
     private String command;
     private Map<String, String> environment = new HashMap<>();
     private ResourcesConfigProperties resources = new ResourcesConfigProperties();
+    private String principal;
+    private String secret;
 
     public String getRole() {
         return role;
@@ -42,5 +44,21 @@ public class MesosConfigProperties {
 
     public void setResources(ResourcesConfigProperties resources) {
         this.resources = resources;
+    }
+
+    public String getPrincipal() {
+        return principal;
+    }
+
+    public void setPrincipal(String principal) {
+        this.principal = principal;
+    }
+
+    public String getSecret() {
+        return secret;
+    }
+
+    public void setSecret(String secret) {
+        this.secret = secret;
     }
 }
