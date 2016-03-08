@@ -70,6 +70,7 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
     public void start() {
         logger.info("Starting Framework");
 
+
         MesosSchedulerDriver driver;
         Protos.Credential credential = credentialFactory.create();
         if (credential.isInitialized()) {

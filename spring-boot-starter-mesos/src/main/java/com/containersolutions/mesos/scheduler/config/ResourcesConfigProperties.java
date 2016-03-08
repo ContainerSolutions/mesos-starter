@@ -1,13 +1,16 @@
 package com.containersolutions.mesos.scheduler.config;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 public class ResourcesConfigProperties {
 
+    public enum PortType {ANY, UNPRIVILEDGED, FIXED, PRIVILEDGED}
+
+    ;
+
     private double cpus;
 
-    private List<String> port = new ArrayList<>();
+    private Map<String, String> ports;
 
     public double getCpus() {
         return cpus;
@@ -17,11 +20,11 @@ public class ResourcesConfigProperties {
         this.cpus = cpus;
     }
 
-    public List<String> getPort() {
-        return port;
+    public Map<String, String> getPorts() {
+        return ports;
     }
 
-    public void setPort(List<String> port) {
-        this.port = port;
+    public void setPorts(Map<String, String> ports) {
+        this.ports = ports;
     }
 }
