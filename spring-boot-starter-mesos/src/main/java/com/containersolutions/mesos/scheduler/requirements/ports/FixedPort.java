@@ -11,17 +11,17 @@ import java.util.Set;
 
 public class FixedPort extends StarterPort {
     protected final Log logger = LogFactory.getLog(getClass());
-    private final Long port;
+    private final Integer port;
 
-    public FixedPort(String portName, Long port) {
+    public FixedPort(String portName, Integer port) {
         super(ResourcesConfigProperties.PortType.FIXED, portName);
         this.port = port;
     }
 
     @Override
-    public List<Protos.Port> apply(Set<Long> availablePorts) {
+    public List<Protos.Port> apply(Set<Integer> availablePorts) {
         if (availablePorts.contains(port)) {
-            return Collections.singletonList(Protos.Port.newBuilder().setName(portName).setNumber(port.intValue()).build());
+            return Collections.singletonList(Protos.Port.newBuilder().setName(portName).setNumber(port).build());
         } else {
             return Collections.emptyList();
         }

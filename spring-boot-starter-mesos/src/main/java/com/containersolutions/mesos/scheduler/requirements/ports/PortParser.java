@@ -18,7 +18,7 @@ public class PortParser {
         this.mesosConfigProperties = mesosConfigProperties;
     }
 
-    public List<PortFunction> getPorts() {
+    public List<PortFactory.PortFunction> getPorts() {
         return mesosConfigProperties.getResources().getPorts().entrySet().stream()
                 .map(PortFactory::create)
                 .collect(Collectors.toList());

@@ -1,7 +1,7 @@
 package com.containersolutions.mesos.scheduler.requirements;
 
 import com.containersolutions.mesos.scheduler.config.MesosConfigProperties;
-import com.containersolutions.mesos.scheduler.requirements.ports.PortFunction;
+import com.containersolutions.mesos.scheduler.requirements.ports.PortFactory;
 import com.containersolutions.mesos.scheduler.requirements.ports.PortParser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +37,7 @@ public class PortParserTest {
         portMap.put(key1, Integer.toString(value1));
         portMap.put(key2, Integer.toString(value2));
         when(mesosConfigProperties.getResources().getPorts()).thenReturn(portMap);
-        List<PortFunction> ports = portParser.getPorts();
+        List<PortFactory.PortFunction> ports = portParser.getPorts();
         assertEquals(portMap.size(), ports.size());
     }
 

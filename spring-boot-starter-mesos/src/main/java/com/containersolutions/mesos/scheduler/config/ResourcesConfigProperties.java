@@ -6,8 +6,6 @@ public class ResourcesConfigProperties {
 
     public enum PortType {ANY, UNPRIVILEDGED, FIXED, PRIVILEDGED}
 
-    ;
-
     private double cpus;
 
     private Map<String, String> ports;

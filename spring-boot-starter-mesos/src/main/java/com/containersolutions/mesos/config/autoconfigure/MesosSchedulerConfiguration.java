@@ -4,7 +4,9 @@ import com.containersolutions.mesos.scheduler.*;
 import com.containersolutions.mesos.scheduler.config.DockerConfigProperties;
 import com.containersolutions.mesos.scheduler.config.MesosConfigProperties;
 import com.containersolutions.mesos.scheduler.requirements.*;
+import com.containersolutions.mesos.scheduler.requirements.ports.PortMerger;
 import com.containersolutions.mesos.scheduler.requirements.ports.PortParser;
+import com.containersolutions.mesos.scheduler.requirements.ports.PortPicker;
 import com.containersolutions.mesos.scheduler.state.StateRepository;
 import com.containersolutions.mesos.scheduler.state.StateRepositoryFile;
 import com.containersolutions.mesos.scheduler.state.StateRepositoryZookeeper;
@@ -22,6 +24,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 
 import java.time.Clock;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicMarkableReference;
@@ -29,6 +32,8 @@ import java.util.function.Supplier;
 
 @Configuration
 public class MesosSchedulerConfiguration {
+    public static final String MESOS_PORTS = "ports";
+    public static final String PORTS_ENV_LABEL = "ports_env";
 
     @Autowired
     Environment environment;
@@ -166,8 +171,49 @@ public class MesosSchedulerConfiguration {
     @ConditionalOnMissingBean(name = "portsRequirement")
     @ConditionalOnProperty(prefix = "mesos.resources", name = "ports")
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    public ResourceRequirement portsRequirement(MesosConfigProperties mesosConfig, PortParser portParser) {
-        return new PortRequirement(mesosConfig, portParser);
+    public ResourceRequirement portsRequirement(PortPicker portPicker) {
+        return (requirement, taskId, offer) -> new OfferEvaluation(
+                requirement,
+                taskId,
+                offer,
+                portPicker.isValid(PortPicker.toPortSet(offer)),
+                portPicker.getResources(PortPicker.toPortSet(offer))
+        );
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PortPicker portPicker(PortParser portParser, PortMerger portMerger) {
+        return new PortPicker(portParser, portMerger);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PortMerger portMerger(List<PortPicker.PortResourceMapper> portResourceMappers) { // Get a list of all beans of type PortResourceMapper
+        return new PortMerger(portResourceMappers);
+    }
+
+    @Bean // Not @ConditionalOnMissingBean, because there are multiple beans.
+    public PortPicker.PortResourceMapper mesosResourceMapper() {
+        // Mesos port resource
+        return port -> Protos.Resource.newBuilder()
+                        .setType(Protos.Value.Type.RANGES)
+                        .setName(MESOS_PORTS)
+                        .setRanges(Protos.Value.Ranges.newBuilder().addRange(Protos.Value.Range.newBuilder().setBegin(port.getNumber()).setEnd(port.getNumber())))
+                .build();
+    }
+
+    @Bean // Not @ConditionalOnMissingBean, because there are multiple beans.
+    public PortPicker.PortResourceMapper envVarResourceMapper() {
+        // Environment variable resource. Is removed before being sent to mesos. Required so that the task info is able to gather information for injecting ports as env vars.
+        return port -> {
+            Protos.Value.Set.Builder envText = Protos.Value.Set.newBuilder().addItem(port.getName() + "=" + port.getNumber());
+            return Protos.Resource.newBuilder()
+                    .setType(Protos.Value.Type.SET)
+                    .setName(PORTS_ENV_LABEL)
+                    .setSet(envText)
+                    .build();
+        };
     }
 
     @Bean

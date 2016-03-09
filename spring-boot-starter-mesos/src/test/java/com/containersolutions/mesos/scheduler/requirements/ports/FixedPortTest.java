@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 public class FixedPortTest {
 
     private String name = "test";
-    private Long port = 7895L;
+    private Integer port = 7895;
     private FixedPort fixedPort = new FixedPort(name, port);
 
     @Test
@@ -28,7 +28,7 @@ public class FixedPortTest {
 
     @Test
     public void shouldNotReturnPortWhenNotAvailable() {
-        List<Protos.Port> ports = fixedPort.apply(new HashSet<>(Collections.singletonList(89L)));
+        List<Protos.Port> ports = fixedPort.apply(new HashSet<>(Collections.singletonList(89)));
         assertTrue(ports.isEmpty());
     }
 }

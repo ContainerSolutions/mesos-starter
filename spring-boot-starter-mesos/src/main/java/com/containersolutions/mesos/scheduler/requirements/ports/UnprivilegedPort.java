@@ -13,11 +13,11 @@ public class UnprivilegedPort extends StarterPort {
     }
 
     @Override
-    public List<Protos.Port> apply(Set<Long> availablePorts) {
+    public List<Protos.Port> apply(Set<Integer> availablePorts) {
         return availablePorts.stream()
                 .filter(unprivPort -> unprivPort >= 1024)
                 .limit(1)
-                .map(port -> Protos.Port.newBuilder().setName(portName).setNumber(port.intValue()).build())
+                .map(port -> Protos.Port.newBuilder().setName(portName).setNumber(port).build())
                 .collect(Collectors.toList());
     }
 }

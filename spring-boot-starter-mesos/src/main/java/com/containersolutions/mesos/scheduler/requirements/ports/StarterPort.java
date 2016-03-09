@@ -6,7 +6,7 @@ import org.apache.mesos.Protos;
 import java.util.List;
 import java.util.Set;
 
-public abstract class StarterPort implements PortFunction {
+public abstract class StarterPort implements PortFactory.PortFunction {
     final ResourcesConfigProperties.PortType portType;
     final String portName;
 
@@ -20,5 +20,5 @@ public abstract class StarterPort implements PortFunction {
         return "{" + portName + ": " + portType + "}";
     }
 
-    public abstract List<Protos.Port> apply(Set<Long> availablePorts);
+    public abstract List<Protos.Port> apply(Set<Integer> availablePorts);
 }

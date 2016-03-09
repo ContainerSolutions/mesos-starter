@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -22,7 +22,7 @@ public class UnprivilegedPortTest {
 
     @Test
     public void shouldShouldTakeUnprivilegedPort() {
-        Long port = 1025L;
+        Integer port = 1025;
         List<Protos.Port> ports = unprivilegedPort.apply(new HashSet<>(Collections.singletonList(port)));
         assertEquals(name, ports.get(0).getName());
         assertEquals(port.intValue(), ports.get(0).getNumber());
@@ -30,14 +30,14 @@ public class UnprivilegedPortTest {
 
     @Test
     public void shouldNotTakePrivilegedPort() {
-        List<Protos.Port> ports = unprivilegedPort.apply(new HashSet<>(Collections.singletonList(0L)));
+        List<Protos.Port> ports = unprivilegedPort.apply(new HashSet<>(Collections.singletonList(0)));
         assertTrue(ports.isEmpty());
     }
 
     @Test
     public void shouldNotTakeMoreThanRequired() {
-        Long port = 1024L;
-        List<Protos.Port> ports = unprivilegedPort.apply(new HashSet<>(LongStream.range(102, 9999).boxed().collect(Collectors.toList())));
+        Integer port = 1024;
+        List<Protos.Port> ports = unprivilegedPort.apply(new HashSet<>(IntStream.range(102, 9999).boxed().collect(Collectors.toList())));
         assertEquals(name, ports.get(0).getName());
         assertEquals(port.intValue(), ports.get(0).getNumber());
         assertEquals(1, ports.size());
