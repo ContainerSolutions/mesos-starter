@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 public class PrivilegedPortTest {
 
     private String name = "test";
-    private PrivilegedPort privilegedPort = new PrivilegedPort(name);
+    private PortFactory.PrivilegedPort privilegedPort = new PortFactory.PrivilegedPort(name);
 
     @Test
     public void shouldShouldTakePrivilegedPort() {

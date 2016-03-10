@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 public class UnprivilegedPortTest {
 
     private String name = "test";
-    private UnprivilegedPort unprivilegedPort = new UnprivilegedPort(name);
+    private PortFactory.UnprivilegedPort unprivilegedPort = new PortFactory.UnprivilegedPort(name);
 
     @Test
     public void shouldShouldTakeUnprivilegedPort() {

@@ -17,7 +17,7 @@ public class FixedPortTest {
 
     private String name = "test";
     private Integer port = 7895;
-    private FixedPort fixedPort = new FixedPort(name, port);
+    private PortFactory.FixedPort fixedPort = new PortFactory.FixedPort(name, port);
 
     @Test
     public void shouldCreateFixedPort() {
