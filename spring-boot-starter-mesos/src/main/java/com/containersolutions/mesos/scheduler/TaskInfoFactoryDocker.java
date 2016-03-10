@@ -39,12 +39,12 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
                 .setContainer(Protos.ContainerInfo.newBuilder()
                                 .setType(Protos.ContainerInfo.Type.DOCKER)
                                 .setDocker(Protos.ContainerInfo.DockerInfo.newBuilder()
-                                                .addAllParameters(addParameters(environment(resources)))
+                                                .addAllParameters(addParameters(commandInfoMesosProtoFactory.create(resources).getEnvironment()))
                                                 .setImage(dockerConfig.getImage())
                                                 .setNetwork(Protos.ContainerInfo.DockerInfo.Network.valueOf(dockerConfig.getNetwork()))
                                 )
                 )
-                .setCommand(command(resources))
+                .setCommand(commandInfoMesosProtoFactory.create(resources))
                 .build();
     }
 
@@ -79,26 +79,4 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
         }
         return dockerParameters;
     }
-
-    private Protos.CommandInfo command(List<Protos.Resource> resources) {
-        return commandInfoMesosProtoFactory.create()
-                .mergeEnvironment(environment(resources))
-                .build();
-    }
-
-    private Protos.Environment environment(List<Protos.Resource> resources) {
-        Protos.Environment.Builder environment = Protos.Environment.newBuilder();
-        List<Protos.Environment.Variable> portEnvVars = resources.stream()
-                .filter(resource -> resource.getType().equals(Protos.Value.Type.SET))
-                .filter(resource -> resource.getName().equals("ports_env"))
-                .map(resource1 -> Protos.Environment.Variable.newBuilder()
-                        .setName(resource1.getSet().getItem(0).split("=")[0])
-                        .setValue(resource1.getSet().getItem(0).split("=")[1])
-                        .build())
-                .collect(Collectors.toList());
-        environment.addAllVariables(portEnvVars);
-        return environment.build();
-    }
-
-
 }

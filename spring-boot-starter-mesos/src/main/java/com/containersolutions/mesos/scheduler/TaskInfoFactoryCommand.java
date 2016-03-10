@@ -7,8 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
-import java.util.UUID;
-import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class TaskInfoFactoryCommand implements TaskInfoFactory {
     protected final Log logger = LogFactory.getLog(getClass());
@@ -19,18 +18,19 @@ public class TaskInfoFactoryCommand implements TaskInfoFactory {
     @Autowired
     MesosProtoFactory<Protos.CommandInfo.Builder> commandInfoMesosProtoFactory;
 
-    @Autowired
-    Supplier<UUID> uuidSupplier;
-
     @Override
     public Protos.TaskInfo create(String taskId, Protos.Offer offer, List<Protos.Resource> resources) {
         logger.debug("Creating Mesos task for taskId=" + taskId);
-        return Protos.TaskInfo.newBuilder()
+        // Remove ports_env from actual mesos resources. They don't exist.
+        List<Protos.Resource> mesosResources = resources.stream().filter(resource -> !resource.getName().equals("ports_env")).collect(Collectors.toList());
+        Protos.TaskInfo taskInfo = Protos.TaskInfo.newBuilder()
                 .setName(applicationName + ".task")
                 .setSlaveId(offer.getSlaveId())
                 .setTaskId(Protos.TaskID.newBuilder().setValue(taskId))
-                .addAllResources(resources)
-                .setCommand(commandInfoMesosProtoFactory.create().build())
+                .addAllResources(mesosResources)
+                .setCommand(commandInfoMesosProtoFactory.create(resources))
                 .build();
+        logger.debug(taskInfo);
+        return taskInfo;
     }
 }
