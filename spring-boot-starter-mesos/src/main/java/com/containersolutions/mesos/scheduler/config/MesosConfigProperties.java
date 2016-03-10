@@ -3,6 +3,7 @@ package com.containersolutions.mesos.scheduler.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @ConfigurationProperties(prefix = "mesos")
@@ -13,6 +14,7 @@ public class MesosConfigProperties {
     private ResourcesConfigProperties resources = new ResourcesConfigProperties();
     private String principal;
     private String secret;
+    private List<String> uri;
 
     public String getRole() {
         return role;
@@ -60,5 +62,13 @@ public class MesosConfigProperties {
 
     public void setSecret(String secret) {
         this.secret = secret;
+    }
+
+    public List<String> getUri() {
+        return uri;
+    }
+
+    public void setUri(List<String> uri) {
+        this.uri = uri;
     }
 }
