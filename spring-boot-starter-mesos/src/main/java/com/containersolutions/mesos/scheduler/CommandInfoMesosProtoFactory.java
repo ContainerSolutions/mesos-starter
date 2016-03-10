@@ -17,13 +17,13 @@ public class CommandInfoMesosProtoFactory implements MesosProtoFactory<Protos.Co
         Optional<String> command = Optional.ofNullable(mesosConfig.getCommand());
         builder.setShell(command.isPresent());
         command.ifPresent(builder::setValue);
+        builder.addAllUris(mesosConfig.getUri().stream().map(uri -> Protos.CommandInfo.URI.newBuilder().setValue(uri).build()).collect(Collectors.toList()));
 
         mesosConfig.getEnvironment().entrySet().stream()
                 .map(kv -> Protos.Environment.Variable.newBuilder().setName(kv.getKey()).setValue(kv.getValue()).build())
                 .collect(Collectors.collectingAndThen(
                         Collectors.toList(),
                         variables -> builder.setEnvironment(Protos.Environment.newBuilder().addAllVariables(variables))));
-
         return builder;
     }
 }
