@@ -13,9 +13,13 @@ public class CredentialFactory {
     MesosConfigProperties mesosConfig;
 
     public Protos.Credential create() {
-        return Protos.Credential.newBuilder()
-                .setPrincipal(mesosConfig.getPrincipal())
-                .setSecret(ByteString.copyFrom(mesosConfig.getSecret().getBytes()))
-                .build();
+        if (mesosConfig.getPrincipal() != null && mesosConfig.getSecret() != null) {
+            return Protos.Credential.newBuilder()
+                    .setPrincipal(mesosConfig.getPrincipal())
+                    .setSecret(ByteString.copyFrom(mesosConfig.getSecret().getBytes()))
+                    .build();
+        } else {
+            return Protos.Credential.getDefaultInstance();
+        }
     }
 }
