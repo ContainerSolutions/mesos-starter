@@ -1,9 +1,9 @@
 package com.containersolutions.mesos.config.autoconfigure;
 
+import com.containersolutions.mesos.TestHelper;
 import com.containersolutions.mesos.scheduler.requirements.OfferEvaluation;
 import com.containersolutions.mesos.scheduler.requirements.ResourceRequirement;
 import com.containersolutions.mesos.scheduler.requirements.ports.PortPicker;
-import com.containersolutions.mesos.scheduler.requirements.ports.PortUtil;
 import org.apache.mesos.Protos;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +40,7 @@ public class MesosSchedulerConfigurationTest {
         when(portPicker.getResources(any())).thenReturn(resources);
         ResourceRequirement resourceRequirement = configuration.portsRequirement(portPicker);
 
-        Protos.Offer offer = PortUtil.defaultOffer().addResources(PortUtil.defaultResource()).build();
+        Protos.Offer offer = TestHelper.defaultOffer().addResources(TestHelper.defaultResource()).build();
         OfferEvaluation evaluation = resourceRequirement.check("ports", "taskId", offer);
         assertTrue(evaluation.isValid());
         assertEquals(resources, evaluation.getResources());

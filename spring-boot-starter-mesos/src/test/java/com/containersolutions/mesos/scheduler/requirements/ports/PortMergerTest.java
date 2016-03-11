@@ -1,5 +1,6 @@
 package com.containersolutions.mesos.scheduler.requirements.ports;
 
+import com.containersolutions.mesos.TestHelper;
 import org.apache.mesos.Protos;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +15,7 @@ import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PortMergerTest {
-    List<PortPicker.PortResourceMapper> resourceMappers = Arrays.asList(port -> PortUtil.defaultResource(port.getNumber()).build());
+    List<PortPicker.PortResourceMapper> resourceMappers = Arrays.asList(port -> TestHelper.defaultResource(port.getNumber()).build());
 
     PortMerger portMerger = new PortMerger(resourceMappers);
 
