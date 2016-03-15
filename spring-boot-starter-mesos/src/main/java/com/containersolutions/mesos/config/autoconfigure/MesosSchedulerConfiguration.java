@@ -169,7 +169,6 @@ public class MesosSchedulerConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(name = "portsRequirement")
-    @ConditionalOnProperty(prefix = "mesos.resources", name = "ports")
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public ResourceRequirement portsRequirement(PortPicker portPicker) {
         return (requirement, taskId, offer) -> new OfferEvaluation(
