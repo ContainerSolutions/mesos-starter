@@ -4,6 +4,7 @@ import com.containersolutions.mesos.scheduler.config.MesosConfigProperties;
 import org.apache.mesos.Protos;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +21,8 @@ public class RoleRequirement implements ResourceRequirement {
         return new OfferEvaluation(
                 requirement, taskId, offer,
                 !roleResources.isEmpty(),
+                Collections.emptyMap(),
+                Collections.emptyList(),
                 roleResources);
     }
 }

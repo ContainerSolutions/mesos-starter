@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.mesos.Protos;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,6 +36,8 @@ public class OfferStrategyFilter {
                 taskId,
                 offer,
                 offerEvaluations.stream().allMatch(OfferEvaluation::isValid),
+                offerEvaluations.stream().flatMap(offerEvaluation -> offerEvaluation.getEnvironmentVariables().entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
+                offerEvaluations.stream().flatMap(offerEvaluation -> offerEvaluation.getPortMappings().stream()).collect(Collectors.toList()),
                 offerEvaluations.stream().flatMap(offerEvaluation -> offerEvaluation.getResources().stream()).collect(Collectors.toList())
         );
     }

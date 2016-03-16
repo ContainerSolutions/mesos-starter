@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationListener;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,7 +40,7 @@ public class ScaleFactorRequirement implements ResourceRequirement, ApplicationL
         if (valid) {
             tentativeAccept.put(taskId, now.plusSeconds(60));
         }
-        return new OfferEvaluation(requirement, taskId, offer, valid);
+        return new OfferEvaluation(requirement, taskId, offer, valid, Collections.emptyMap(), Collections.emptyList());
     }
 
     private int totalInstances() {

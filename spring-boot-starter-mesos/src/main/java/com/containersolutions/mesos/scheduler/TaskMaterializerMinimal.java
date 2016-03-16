@@ -9,6 +9,16 @@ public class TaskMaterializerMinimal implements TaskMaterializer {
 
     @Override
     public TaskProposal createProposal(OfferEvaluation offerEvaluation) {
-        return new TaskProposal(offerEvaluation.getOffer(), taskInfoFactory.create(offerEvaluation.getTaskId(), offerEvaluation.getOffer(), offerEvaluation.getResources()));
+        return new TaskProposal(
+                offerEvaluation.getOffer(),
+                taskInfoFactory.create(
+                        offerEvaluation.getTaskId(),
+                        offerEvaluation.getOffer(),
+                        offerEvaluation.getResources(),
+                        new ExecutionParameters(offerEvaluation.getEnvironmentVariables(),
+                                offerEvaluation.getPortMappings()
+                        )
+                )
+        );
     }
 }

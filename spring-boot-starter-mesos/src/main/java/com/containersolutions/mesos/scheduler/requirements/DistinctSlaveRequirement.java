@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,7 +34,7 @@ public class DistinctSlaveRequirement implements ResourceRequirement {
         if (valid) {
             tentativeAccept.put(slaveId, now.plusSeconds(60));
         }
-        return new OfferEvaluation(requirement, taskId, offer, valid);
+        return new OfferEvaluation(requirement, taskId, offer, valid, Collections.emptyMap(), Collections.emptyList());
     }
 
     private boolean slaveIsRunningTask(String slaveId) {
