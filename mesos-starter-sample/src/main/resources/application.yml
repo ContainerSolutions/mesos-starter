@@ -3,7 +3,7 @@ spring:
     name: Sample App
 
 mesos:
-  command: sleep 10
+  command: sleep 60
   resources:
     distinctSlave: true
     scale: 1
@@ -16,9 +16,3 @@ mesos:
   docker:
 #    image: tutum/hello-world:latest
     image: alpine
-
-logging:
-  level:
-    com:
-      containersolutions:
-        mesos: DEBUG

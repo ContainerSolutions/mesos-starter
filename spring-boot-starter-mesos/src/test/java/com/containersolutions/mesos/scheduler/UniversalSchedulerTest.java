@@ -62,7 +62,7 @@ public class UniversalSchedulerTest {
     @Test
     public void willLaunchTaskFromValidOffer() throws Exception {
         Protos.Offer offer = TestHelper.createDummyOffer();
-        Protos.TaskInfo task = TestHelper.createDummyTask(builder -> builder.setTaskId(Protos.TaskID.newBuilder().setValue(taskId)));
+        Protos.TaskInfo task = TestHelper.createDummyTask("task", builder -> builder.setTaskId(Protos.TaskID.newBuilder().setValue(taskId)));
 
         when(uuidSupplier.get()).thenReturn(uuid);
         OfferEvaluation offerEvaluation = new OfferEvaluation("test", taskId, offer, true, Collections.emptyMap(), Collections.emptyList());

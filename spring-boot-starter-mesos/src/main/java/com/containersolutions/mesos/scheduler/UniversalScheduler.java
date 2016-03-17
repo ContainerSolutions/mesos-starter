@@ -164,4 +164,8 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
         logger.info("Received error: " + message);
         applicationEventPublisher.publishEvent(new ErrorEvent(message));
     }
+
+    public void killTask(Protos.TaskID taskId) {
+        driver.get().killTask(taskId);
+    }
 }

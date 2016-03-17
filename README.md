@@ -30,7 +30,7 @@ To run three instances of a Docker image add the following in `application.prope
 
 ```
 mesos.resources.distinctSlave=true
-mesos.resources.scale=3
+mesos.resources.count=3
 mesos.resources.cpus=0.1
 mesos.resources.mem=64
 mesos.docker.image=tutum/hello-world:latest
@@ -82,7 +82,7 @@ Extend the `TaskInfoFactory` class to create your own task.
 Mesos-starter offers a set of offer evaluation rules
 - Physical requirements
 - Distinct slave
-- Scale factor
+- Instances count
 - Role assigned
 
 They all work in combination with each other, though this might change in the future.
@@ -116,8 +116,8 @@ This will reserve any port above 1024 and let docker map it to port 80 on the co
 ## Distinct slave
 This rule will make sure that offers for hosts where the application is already running are being rejected.
 
-## Scale factor
-This rule will make sure that only a certain number of instances are running in the Mesos cluster. It is currently not possible to change the scale factor at runtime, but it's very high on the backlog. Furthermore it'll also be possible to insert your own scale factor bean.
+## Instances count
+This rule will make sure that only a certain number of instances are running in the Mesos cluster. The instances count is exposed as a managed bean that can be accessed through Actuator Management API. Furthermore it'll also be possible to insert your own instances count bean.
 It is recommended to have this rule enabled in most cases.
 
 ## Role assigned
@@ -131,7 +131,7 @@ A few good examples
 For a stateless web application that can run anywhere in the cluster with only a requirement for a single network port, the following should be sufficient
 
 ```
-mesos.resources.scale=3
+mesos.resources.count=3
 mesos.resources.cpus=0.1
 mesos.resources.mem=64
 mesos.resources.ports=1
@@ -140,10 +140,10 @@ mesos.resources.ports=1
 This will run 3 instances of the application with one port exposed. Bare in mind that they all might run on the very same host.
 
 ## Distributed database application
-For a distributed database you want to run a certain number of instances and never more than one on every host. To achieve that you can enable `scale` and `distinctSlave`, like
+For a distributed database you want to run a certain number of instances and never more than one on every host. To achieve that you can enable `count` and `distinctSlave`, like
 
 ```
-mesos.resources.scale=3
+mesos.resources.count=3
 mesos.resources.distinctSlave=true
 mesos.resources.cpus=0.1
 mesos.resources.mem=64
@@ -151,7 +151,7 @@ mesos.resources.ports=1
 ```
 
 ## Cluster wide system daemon
-Often operations would like to run a single application on each host in the cluster to harvest information from every single node. This can be achieved by not adding the Scale factor rule and adding the Distinct slave rule.
+Often operations would like to run a single application on each host in the cluster to harvest information from every single node. This can be achieved by not adding the instances count rule and adding the Distinct slave rule.
 
 ```
 mesos.resources.distinctSlave=true

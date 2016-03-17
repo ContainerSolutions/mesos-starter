@@ -22,14 +22,14 @@ public class TestHelper {
 
     }
 
-    public static Protos.TaskInfo createDummyTask() {
-        return createDummyTask(null);
+    public static Protos.TaskInfo createDummyTask(String name) {
+        return createDummyTask(name, null);
     }
 
-    public static Protos.TaskInfo createDummyTask(Consumer<Protos.TaskInfo.Builder> mapper) {
+    public static Protos.TaskInfo createDummyTask(String name, Consumer<Protos.TaskInfo.Builder> mapper) {
         Protos.TaskInfo.Builder task = Protos.TaskInfo.newBuilder()
-                .setName("task")
-                .setTaskId(Protos.TaskID.newBuilder().setValue("task id"))
+                .setName(name)
+                .setTaskId(Protos.TaskID.newBuilder().setValue(name + " id"))
                 .setSlaveId(Protos.SlaveID.newBuilder().setValue("slave id"));
         if (mapper != null) {
             mapper.accept(task);
