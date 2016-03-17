@@ -4,18 +4,17 @@ import com.containersolutions.mesos.scheduler.config.MesosConfigProperties;
 import org.apache.mesos.Protos;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class CommandInfoMesosProtoFactory implements MesosProtoFactory<Protos.CommandInfo.Builder, Map<String, String>> {
+public class CommandInfoMesosProtoFactory implements MesosProtoFactory<Protos.CommandInfo,Map<String, String>> {
     @Autowired
     MesosConfigProperties mesosConfig;
 
     @Override
-    public Protos.CommandInfo.Builder create(Map<String, String> additionalEnvironmentVariables) {
+    public Protos.CommandInfo create(Map<String, String> additionalEnvironmentVariables) {
         Protos.CommandInfo.Builder builder = Protos.CommandInfo.newBuilder();
         Optional<String> command = Optional.ofNullable(mesosConfig.getCommand());
         builder.setShell(command.isPresent());
@@ -31,6 +30,6 @@ public class CommandInfoMesosProtoFactory implements MesosProtoFactory<Protos.Co
                 .collect(Collectors.collectingAndThen(
                         Collectors.toList(),
                         variables -> builder.setEnvironment(Protos.Environment.newBuilder().addAllVariables(variables))));
-        return builder;
+        return builder.build();
     }
 }

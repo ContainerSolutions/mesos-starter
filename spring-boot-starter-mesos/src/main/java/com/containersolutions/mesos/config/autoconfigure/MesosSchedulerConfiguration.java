@@ -105,7 +105,7 @@ public class MesosSchedulerConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(name = "commandInfoMesosProtoFactory")
-    public MesosProtoFactory<Protos.CommandInfo.Builder, Map<String, String>> commandInfoMesosProtoFactory() {
+    public MesosProtoFactory<Protos.CommandInfo, Map<String, String>> commandInfoMesosProtoFactory() {
         return new CommandInfoMesosProtoFactory();
     }
 

@@ -30,7 +30,7 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
     MesosConfigProperties mesosConfig;
 
     @Autowired
-    MesosProtoFactory<Protos.CommandInfo.Builder, Map<String, String>> commandInfoMesosProtoFactory;
+    MesosProtoFactory<Protos.CommandInfo, Map<String, String>> commandInfoMesosProtoFactory;
 
     @Override
     public Protos.TaskInfo create(String taskId, Protos.Offer offer, List<Protos.Resource> resources, ExecutionParameters executionParameters) {
@@ -53,9 +53,7 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
     }
 
     private Protos.CommandInfo command(Map<String, String> additionalEnvironmentVariables) {
-        return commandInfoMesosProtoFactory.create(additionalEnvironmentVariables)
-                .setContainer(Protos.CommandInfo.ContainerInfo.newBuilder().setImage(dockerImage))
-                .build();
+        return commandInfoMesosProtoFactory.create(additionalEnvironmentVariables);
     }
 
     private Iterable<? extends Protos.ContainerInfo.DockerInfo.PortMapping> portMappings(List<PortMapping> portMappings) {
