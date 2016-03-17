@@ -68,6 +68,7 @@ public class InstancesCountRequirement implements ResourceRequirement, Applicati
         tentativeAccept.entrySet().stream()
                 .filter(entry -> entry.getValue().isBefore(now))
                 .map(Map.Entry::getKey)
+                .peek(taskId -> logger.debug("Removing tentative accept for taskId=" + taskId))
                 .forEach(this::removeTentativeAccept);
     }
 }

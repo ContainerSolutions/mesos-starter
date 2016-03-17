@@ -6,17 +6,14 @@ import com.containersolutions.mesos.scheduler.state.StateRepository;
 import org.apache.mesos.Protos;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -31,9 +28,6 @@ public class TaskReaperTest {
 
     @Mock
     UniversalScheduler universalScheduler;
-
-    @Captor
-    ArgumentCaptor<Protos.TaskID> taskIDArgumentCaptor;
 
     @InjectMocks
     TaskReaper taskReaper = new TaskReaper();
@@ -53,8 +47,7 @@ public class TaskReaperTest {
         when(instanceCount.getCount()).thenReturn(1);
         taskReaper.onApplicationEvent(new InstanceCountChangeEvent(1));
 
-        verify(universalScheduler).killTask(taskIDArgumentCaptor.capture());
-        assertEquals("task 2 id", taskIDArgumentCaptor.getValue().getValue());
+        verify(universalScheduler).killTask(any(Protos.TaskID.class));
     }
 
     private static Set<Protos.TaskInfo> tasksInfoSet(String ... names) {
