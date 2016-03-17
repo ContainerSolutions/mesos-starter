@@ -8,11 +8,11 @@ import org.apache.mesos.Protos;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
+
+import static java.util.Collections.emptyList;
 
 public class TaskInfoFactoryDocker implements TaskInfoFactory {
     protected final Log logger = LogFactory.getLog(getClass());
@@ -59,13 +59,16 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
     }
 
     private Iterable<? extends Protos.ContainerInfo.DockerInfo.PortMapping> portMappings(List<PortMapping> portMappings) {
-
-        return portMappings.stream()
-                .map(portMapping -> Protos.ContainerInfo.DockerInfo.PortMapping.newBuilder()
-                        .setHostPort(portMapping.getOfferedPort())
-                        .setContainerPort(portMapping.getContainerPort().orElseThrow(() -> new IllegalArgumentException("No container port specified for " + portMapping.getName())))
-                        .build())
-                .peek(portMapping -> logger.info("Mapped host port " + portMapping.getHostPort() + " to container port " + portMapping.getContainerPort()))
-                .collect(Collectors.toList());
+        if (networkMode.equalsIgnoreCase("BRIDGE")) {
+            return portMappings.stream()
+                    .map(portMapping -> Protos.ContainerInfo.DockerInfo.PortMapping.newBuilder()
+                            .setHostPort(portMapping.getOfferedPort())
+                            .setContainerPort(portMapping.getContainerPort().orElseThrow(() -> new IllegalArgumentException("No container port specified for " + portMapping.getName())))
+                            .build())
+                    .peek(portMapping -> logger.info("Mapped host port " + portMapping.getHostPort() + " to container port " + portMapping.getContainerPort()))
+                    .collect(Collectors.toList());
+        } else {
+            return emptyList();
+        }
     }
 }

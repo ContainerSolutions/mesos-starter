@@ -21,14 +21,7 @@ public class OfferStrategyFilter {
     public OfferEvaluation evaluate(String taskId, Protos.Offer offer) {
         List<OfferEvaluation> offerEvaluations = resourceRequirements.entrySet().stream()
                 .map(kv -> kv.getValue().check(kv.getKey(), taskId, offer))
-                .peek(offerEvaluation -> {
-                    if (offerEvaluation.isValid()) {
-                        logger.debug("Accepting offer offerId=" + offer.getId().getValue() + ", by requirement=" + offerEvaluation.getRequirement());
-                    }
-                    else {
-                        logger.debug("Rejecting offer offerId=" + offer.getId().getValue() + ", by requirement=" + offerEvaluation.getRequirement());
-                    }
-                })
+                .peek(offerEvaluation -> logger.debug((offerEvaluation.isValid() ? "Accepting" : "Rejecting") + " offer offerId=" + offer.getId().getValue() + ", by requirement=" + offerEvaluation.getRequirement()))
                 .collect(Collectors.toList());
 
         return new OfferEvaluation(
