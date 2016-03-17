@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ScaleFactorRequirementTest {
+public class InstancesCountRequirementTest {
     @Mock
     Clock clock;
 
@@ -28,10 +28,10 @@ public class ScaleFactorRequirementTest {
     StateRepository stateRepository;
 
     @InjectMocks
-    ScaleFactorRequirement requirement = new ScaleFactorRequirement(1);
+    InstancesCountRequirement requirement = new InstancesCountRequirement(1);
 
     @Test
-    public void willRejectOfferWhenScaleFactorReached() throws Exception {
+    public void willRejectOfferWhenCountIsReached() throws Exception {
         when(clock.instant()).thenReturn(Instant.now());
         assertTrue(requirement.check("test requirement", "taskId 1", TestHelper.createDummyOffer()).isValid());
         requirement.onApplicationEvent(createUpdate(Protos.TaskState.TASK_RUNNING, "taskId 1"));

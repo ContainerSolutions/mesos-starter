@@ -132,11 +132,11 @@ public class MesosSchedulerConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(name = "scaleFactorRequirement")
-    @ConditionalOnProperty(prefix = "mesos.resources", name = "scale")
+    @ConditionalOnMissingBean(name = "instancesCountRequirement")
+    @ConditionalOnProperty(prefix = "mesos.resources", name = "count")
     @Order(Ordered.LOWEST_PRECEDENCE)
-    public ResourceRequirement scaleFactorRequirement() {
-        return new ScaleFactorRequirement(environment.getProperty("mesos.resources.scale", Integer.class, 1));
+    public ResourceRequirement instancesCountRequirement() {
+        return new InstancesCountRequirement(environment.getProperty("mesos.resources.count", Integer.class, 1));
     }
 
     @Bean
