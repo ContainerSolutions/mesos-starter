@@ -5,10 +5,14 @@ spring:
 mesos:
   command: sleep 60
   resources:
-#    distinctSlave: true
-    count: 1
-    cpus: 0.01
-    mem: 4
-    docker:
+    distinctSlave: true
+    scale: 1
+    cpus: 0.1
+    mem: 64
+#    ports:
+#      nc-port:
+#        host: 31101
+#        container: 80
+  docker:
 #    image: tutum/hello-world:latest
     image: alpine

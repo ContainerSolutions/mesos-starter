@@ -89,7 +89,29 @@ They all work in combination with each other, though this might change in the fu
 
 ## Physical requirements
 Reject offers that does not have the required amount of either CPUs, memory or ports.
-At his time the `ports` property is an amount and ports are dynamically assigned. Work is being done on a rule for requiring specific ports, including privileged ports.
+
+### Ports
+The ports requirement serves two purposes. Grapping ports and mapping them to the application.
+A very base configuration looks like this
+```
+mesos.resources.ports.http.host=ANY
+mesos.command=runwebserver.sh --port=$HTTP
+```
+This will grap any unprivileged port, and expose it in an environment variable. Value of `.host` can be any off
+- `ANY`, `UNPRIVILEGED` will reserve any any port above 1024
+- `PRIVILEGED` will only reserve a port below 1024 (included)
+- *Any positive number* will only reserve a fixed port.
+
+When running with containers you can add the `.container` to map it to a container port when running in bridge mode, i.e.
+
+```
+mesos.resources.ports.http.host=ANY
+mesos.resources.ports.http.container=80
+mesos.docker.network=BRIDGE
+mesos.docker.image=tutum/hello-world
+```
+
+This will reserve any port above 1024 and let docker map it to port 80 on the container.
 
 ## Distinct slave
 This rule will make sure that offers for hosts where the application is already running are being rejected.

@@ -118,6 +118,7 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
                         offerEvaluation -> schedulerDriver.declineOffer(offerEvaluation.getOffer().getId())))
                 .peek(offerEvaluation -> logger.info("Accepting offer offerId=" + offerEvaluation.getOffer().getId().getValue() + " on slaveId=" + offerEvaluation.getOffer().getSlaveId().getValue()))
                 .map(taskMaterializer::createProposal)
+                .peek(taskProposal -> logger.debug("Launcing task " + taskProposal.getTaskInfo().toString()))
                 .forEach(taskProposal -> {
                     schedulerDriver.launchTasks(Collections.singleton(taskProposal.getOfferId()), Collections.singleton(taskProposal.getTaskInfo()));
                     stateRepository.store(taskProposal.taskInfo);

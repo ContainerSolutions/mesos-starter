@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationListener;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -36,7 +37,7 @@ public class InstancesCountRequirement implements ResourceRequirement, Applicati
         if (valid) {
             createTentativeAccept(taskId, now);
         }
-        return new OfferEvaluation(requirement, taskId, offer, valid);
+        return new OfferEvaluation(requirement, taskId, offer, valid, Collections.emptyMap(), Collections.emptyList());
     }
 
     private void createTentativeAccept(String taskId, Instant now) {

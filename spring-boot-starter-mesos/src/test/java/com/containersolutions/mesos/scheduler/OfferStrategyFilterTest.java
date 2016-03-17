@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collections;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertFalse;
@@ -37,7 +38,7 @@ public class OfferStrategyFilterTest {
 
     @Test
     public void willApproveValidOffer() throws Exception {
-        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(new OfferEvaluation("test requirement", taskId, offer, true));
+        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(new OfferEvaluation("test requirement", taskId, offer, true, Collections.emptyMap(), Collections.emptyList()));
 
         final OfferEvaluation result = filter.evaluate(taskId, offer);
         assertTrue(result.isValid());
@@ -47,7 +48,7 @@ public class OfferStrategyFilterTest {
 
     @Test
     public void willRejectInvalidOffer() throws Exception {
-        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(new OfferEvaluation("test requirement", taskId, offer, false));
+        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(new OfferEvaluation("test requirement", taskId, offer, false, Collections.emptyMap(), Collections.emptyList()));
         assertFalse(filter.evaluate(taskId, offer).isValid());
         verify(resourceRequirement).check("requirement 1", taskId, offer);
     }
@@ -57,8 +58,8 @@ public class OfferStrategyFilterTest {
         ResourceRequirement decliningRequirement = mock(ResourceRequirement.class);
         filter.resourceRequirements.put("requirement 2", decliningRequirement);
 
-        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(new OfferEvaluation("requirement 1", taskId, offer, false));
-        when(decliningRequirement.check("requirement 2", taskId, offer)).thenReturn(new OfferEvaluation("requirement 2", taskId, offer, false));
+        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(new OfferEvaluation("requirement 1", taskId, offer, false, Collections.emptyMap(), Collections.emptyList()));
+        when(decliningRequirement.check("requirement 2", taskId, offer)).thenReturn(new OfferEvaluation("requirement 2", taskId, offer, false, Collections.emptyMap(), Collections.emptyList()));
 
         assertFalse(filter.evaluate(taskId, offer).isValid());
 
@@ -70,8 +71,8 @@ public class OfferStrategyFilterTest {
         ResourceRequirement approvingRequirement = mock(ResourceRequirement.class);
         filter.resourceRequirements.put("requirement 2", approvingRequirement);
 
-        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(new OfferEvaluation("requirement 1", taskId, offer, true));
-        when(approvingRequirement.check("requirement 2", taskId, offer)).thenReturn(new OfferEvaluation("requirement 2", taskId, offer, true));
+        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(new OfferEvaluation("requirement 1", taskId, offer, true, Collections.emptyMap(), Collections.emptyList()));
+        when(approvingRequirement.check("requirement 2", taskId, offer)).thenReturn(new OfferEvaluation("requirement 2", taskId, offer, true, Collections.emptyMap(), Collections.emptyList()));
 
         assertTrue(filter.evaluate(taskId, offer).isValid());
 

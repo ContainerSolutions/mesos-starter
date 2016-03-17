@@ -20,14 +20,12 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 
 import java.time.Clock;
-import java.util.List;
-import java.util.LongSummaryStatistics;
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicMarkableReference;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 
 @Configuration
 public class MesosSchedulerConfiguration {
@@ -51,6 +49,8 @@ public class MesosSchedulerConfiguration {
                 taskId,
                 offer,
                 ResourceRequirement.scalarSum(offer, name) > minimumRequirement,
+                Collections.emptyMap(),
+                Collections.emptyList(),
                 Protos.Resource.newBuilder()
                         .setType(Protos.Value.Type.SCALAR)
                         .setName(name)
@@ -105,7 +105,7 @@ public class MesosSchedulerConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(name = "commandInfoMesosProtoFactory")
-    public MesosProtoFactory<Protos.CommandInfo.Builder> commandInfoMesosProtoFactory() {
+    public MesosProtoFactory<Protos.CommandInfo.Builder, Map<String, String>> commandInfoMesosProtoFactory() {
         return new CommandInfoMesosProtoFactory();
     }
 
@@ -118,7 +118,6 @@ public class MesosSchedulerConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(TaskInfoFactory.class)
-    @ConditionalOnProperty(prefix = "mesos", name = {"command"})
     public TaskInfoFactory taskInfoFactoryCommand() {
         return new TaskInfoFactoryCommand();
     }
@@ -178,31 +177,10 @@ public class MesosSchedulerConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(name = "portsRequirement")
-    @ConditionalOnProperty(prefix = "mesos.resources", name = "port")
+//    @ConditionalOnProperty(prefix = "mesos.resources", name = "ports")
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    public ResourceRequirement portsRequirement(MesosConfigProperties mesosConfig) {
-        List<String> ports = mesosConfig.getResources().getPort();
-
-        return (requirement, taskId, offer) -> {
-            LongSummaryStatistics portsSummary = offer.getResourcesList().stream()
-                    .filter(resource -> resource.getName().equals("ports"))
-                    .flatMap(resource -> resource.getRanges().getRangeList().stream())
-                    .flatMapToLong(range -> LongStream.rangeClosed(range.getBegin(), range.getEnd()))
-                    .limit(ports.size())
-                    .boxed()
-                    .collect(Collectors.summarizingLong(Long::longValue));
-            return new OfferEvaluation(
-                    requirement,
-                    taskId,
-                    offer,
-                    portsSummary.getCount() == ports.size(),
-                    Protos.Resource.newBuilder()
-                            .setType(Protos.Value.Type.RANGES)
-                            .setName("ports")
-                            .setRanges(Protos.Value.Ranges.newBuilder().addRange(Protos.Value.Range.newBuilder().setBegin(portsSummary.getMin()).setEnd(portsSummary.getMax())))
-                            .build()
-            );
-        };
+    public ResourceRequirement portsRequirement() {
+        return new PortsRequirement();
     }
 
     @Bean
@@ -221,4 +199,5 @@ public class MesosSchedulerConfiguration {
     public CredentialFactory credentialFactory() {
         return new CredentialFactory();
     }
+
 }
