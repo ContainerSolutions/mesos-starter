@@ -16,7 +16,7 @@ public class CredentialFactory {
         if (mesosConfig.getPrincipal() != null && mesosConfig.getSecret() != null) {
             return Protos.Credential.newBuilder()
                     .setPrincipal(mesosConfig.getPrincipal())
-                    .setSecret(ByteString.copyFrom(mesosConfig.getSecret().getBytes()))
+                    .setSecret(mesosConfig.getSecret())
                     .build();
         } else {
             return Protos.Credential.getDefaultInstance();
