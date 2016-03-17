@@ -136,7 +136,19 @@ public class MesosSchedulerConfiguration {
     @ConditionalOnProperty(prefix = "mesos.resources", name = "count")
     @Order(Ordered.LOWEST_PRECEDENCE)
     public ResourceRequirement instancesCountRequirement() {
-        return new InstancesCountRequirement(environment.getProperty("mesos.resources.count", Integer.class, 1));
+        return new InstancesCountRequirement();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "mesos.resources", name = "count")
+    public TaskReaper taskReaper() {
+        return new TaskReaper();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "mesos.resources", name = "count")
+    public InstanceCount instanceCount() {
+        return new InstanceCount(environment.getProperty("mesos.resources.count", Integer.class, 1));
     }
 
     @Bean

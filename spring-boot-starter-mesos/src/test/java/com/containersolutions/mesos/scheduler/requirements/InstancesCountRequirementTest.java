@@ -28,14 +28,14 @@ public class InstancesCountRequirementTest {
     StateRepository stateRepository;
 
     @InjectMocks
-    InstancesCountRequirement requirement = new InstancesCountRequirement(1);
+    InstancesCountRequirement requirement = new InstancesCountRequirement();
 
     @Test
     public void willRejectOfferWhenCountIsReached() throws Exception {
         when(clock.instant()).thenReturn(Instant.now());
         assertTrue(requirement.check("test requirement", "taskId 1", TestHelper.createDummyOffer()).isValid());
         requirement.onApplicationEvent(createUpdate(Protos.TaskState.TASK_RUNNING, "taskId 1"));
-        when(stateRepository.allTaskInfos()).thenReturn(Collections.singleton(TestHelper.createDummyTask()));
+        when(stateRepository.allTaskInfos()).thenReturn(Collections.singleton(TestHelper.createDummyTask("task")));
 
         assertFalse(requirement.check("test requirement", "taskId 2", TestHelper.createDummyOffer()).isValid());
     }
