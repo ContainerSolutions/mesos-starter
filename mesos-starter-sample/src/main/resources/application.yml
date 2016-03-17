@@ -3,12 +3,22 @@ spring:
     name: Sample App
 
 mesos:
+  command: sleep 10
   resources:
     distinctSlave: true
-#    scale: 1
+    scale: 1
     cpus: 0.1
     mem: 64
+#    ports:
+#      nc-port:
+#        host: 31101
+#        container: 80
   docker:
 #    image: tutum/hello-world:latest
     image: alpine
-    command: sleep 60
+
+logging:
+  level:
+    com:
+      containersolutions:
+        mesos: DEBUG
