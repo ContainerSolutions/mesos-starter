@@ -33,8 +33,9 @@ public class DistinctSlaveRequirement implements ResourceRequirement {
         final boolean valid = slaveIsRunningTask(slaveId);
         if (valid) {
             tentativeAccept.put(slaveId, now.plusSeconds(60));
+            return OfferEvaluation.accept(requirement, taskId, offer, Collections.emptyMap(), Collections.emptyList());
         }
-        return new OfferEvaluation(requirement, taskId, offer, valid, Collections.emptyMap(), Collections.emptyList());
+        return OfferEvaluation.decline(requirement, taskId, offer, "Slave " + slaveId + " is already running task");
     }
 
     private boolean slaveIsRunningTask(String slaveId) {

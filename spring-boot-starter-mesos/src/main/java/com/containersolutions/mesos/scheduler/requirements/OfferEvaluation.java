@@ -4,6 +4,7 @@ import org.apache.mesos.Protos;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 
@@ -11,23 +12,33 @@ public class OfferEvaluation {
     String requirement;
     Protos.Offer offer;
     boolean valid;
+    String declineReason;
     String taskId;
     private Map<String, String> environmentVariables;
     final List<PortMapping> portMappings;
     List<Protos.Resource> resources;
 
-    public OfferEvaluation(String requirement, String taskId, Protos.Offer offer, boolean valid, Map<String, String> environmentVariables, List<PortMapping> portMappings, List<Protos.Resource> resources) {
+    private OfferEvaluation(String requirement, String taskId, Protos.Offer offer, boolean valid, String declineReason, Map<String, String> environmentVariables, List<PortMapping> portMappings, List<Protos.Resource> resources) {
         this.requirement = requirement;
         this.taskId = taskId;
         this.offer = offer;
+        this.valid = valid;
+        this.declineReason = declineReason;
         this.environmentVariables = environmentVariables;
         this.portMappings = portMappings;
         this.resources = resources;
-        this.valid = valid;
     }
 
-    public OfferEvaluation(String requirement, String taskId, Protos.Offer offer, boolean valid, Map<String, String> environmentVariables, List<PortMapping> portMappings, Protos.Resource... resources) {
-        this(requirement, taskId, offer, valid, environmentVariables, portMappings, asList(resources));
+    public static OfferEvaluation accept(String requirement, String taskId, Protos.Offer offer, Map<String, String> environmentVariables, List<PortMapping> portMappings, List<Protos.Resource> resources) {
+        return new OfferEvaluation(requirement, taskId, offer, true, null, environmentVariables, portMappings, resources);
+    }
+
+    public static OfferEvaluation accept(String requirement, String taskId, Protos.Offer offer, Map<String, String> environmentVariables, List<PortMapping> portMappings, Protos.Resource ... resources) {
+        return new OfferEvaluation(requirement, taskId, offer, true, null, environmentVariables, portMappings, asList(resources));
+    }
+
+    public static OfferEvaluation decline(String requirement, String taskId, Protos.Offer offer, String reason) {
+        return new OfferEvaluation(requirement, taskId, offer, false, reason, null, null, null);
     }
 
     public boolean isValid() {
@@ -60,5 +71,9 @@ public class OfferEvaluation {
 
     public List<PortMapping> getPortMappings() {
         return portMappings;
+    }
+
+    public Optional<String> getDeclineReason() {
+        return Optional.ofNullable(this.declineReason);
     }
 }

@@ -44,19 +44,23 @@ public class MesosSchedulerConfiguration {
     }
 
     private ResourceRequirement simpleScalarRequirement(String name, double minimumRequirement) {
-        return (requirement, taskId, offer) -> new OfferEvaluation(
-                requirement,
-                taskId,
-                offer,
-                ResourceRequirement.scalarSum(offer, name) > minimumRequirement,
-                Collections.emptyMap(),
-                Collections.emptyList(),
-                Protos.Resource.newBuilder()
-                        .setType(Protos.Value.Type.SCALAR)
-                        .setName(name)
-                        .setScalar(Protos.Value.Scalar.newBuilder().setValue(minimumRequirement))
-                        .build()
-        );
+        return (requirement, taskId, offer) -> {
+            if (ResourceRequirement.scalarSum(offer, name) > minimumRequirement) {
+                return OfferEvaluation.accept(
+                        requirement,
+                        taskId,
+                        offer,
+                        Collections.emptyMap(),
+                        Collections.emptyList(),
+                        Protos.Resource.newBuilder()
+                                .setType(Protos.Value.Type.SCALAR)
+                                .setName(name)
+                                .setScalar(Protos.Value.Scalar.newBuilder().setValue(minimumRequirement))
+                                .build()
+                );
+            }
+            return OfferEvaluation.decline(requirement, taskId, offer, "Not enough resources for " + name);
+        };
 
     }
 

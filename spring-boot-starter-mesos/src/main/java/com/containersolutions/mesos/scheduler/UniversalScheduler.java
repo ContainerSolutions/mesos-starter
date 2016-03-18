@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -110,6 +111,7 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
 
     @Override
     public void resourceOffers(SchedulerDriver schedulerDriver, List<Protos.Offer> offers) {
+        AtomicInteger startedTasks = new AtomicInteger(0);
         offers.stream()
                 .peek(offer -> logger.debug("Received offerId=" + offer.getId().getValue() + " for slaveId=" + offer.getSlaveId().getValue()))
                 .map(offer -> offerStrategyFilter.evaluate(uuidSupplier.get().toString(), offer))
@@ -118,11 +120,13 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
                         offerEvaluation -> schedulerDriver.declineOffer(offerEvaluation.getOffer().getId())))
                 .peek(offerEvaluation -> logger.info("Accepting offer offerId=" + offerEvaluation.getOffer().getId().getValue() + " on slaveId=" + offerEvaluation.getOffer().getSlaveId().getValue()))
                 .map(taskMaterializer::createProposal)
-                .peek(taskProposal -> logger.debug("Launcing task " + taskProposal.getTaskInfo().toString()))
+//                .peek(taskProposal -> logger.debug("Launcing task " + taskProposal.getTaskInfo().toString()))
+                .peek(taskProposal -> startedTasks.incrementAndGet())
                 .forEach(taskProposal -> {
                     schedulerDriver.launchTasks(Collections.singleton(taskProposal.getOfferId()), Collections.singleton(taskProposal.getTaskInfo()));
                     stateRepository.store(taskProposal.taskInfo);
                 });
+        logger.debug("Finished evaluating " + offers.size() + " offers");
     }
 
     @Override
