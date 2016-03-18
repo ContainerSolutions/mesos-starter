@@ -52,21 +52,24 @@ public class PortsRequirement implements ResourceRequirement {
                 .filter(portMap -> portMap != null)
                 .limit(ports.size())
                 .collect(Collectors.toList());
-        return new OfferEvaluation(
-                requirement,
-                taskId,
-                offer,
-                portMappings.size() == ports.size(),
-                portMappings.stream().collect(Collectors.toMap(PortMapping::envName, PortMapping::envValue)),
-                portMappings,
-                Protos.Resource.newBuilder()
-                        .setType(Protos.Value.Type.RANGES)
-                        .setName("ports")
-                        .setRanges(Protos.Value.Ranges.newBuilder().addAllRange(
-                                portMappings.stream().map(PortMapping::toRange).collect(Collectors.toList())
-                        ))
-                        .build()
-        );
+
+        if (portMappings.size() == ports.size()) {
+            return OfferEvaluation.accept(
+                    requirement,
+                    taskId,
+                    offer,
+                    portMappings.stream().collect(Collectors.toMap(PortMapping::envName, PortMapping::envValue)),
+                    portMappings,
+                    Protos.Resource.newBuilder()
+                            .setType(Protos.Value.Type.RANGES)
+                            .setName("ports")
+                            .setRanges(Protos.Value.Ranges.newBuilder().addAllRange(
+                                    portMappings.stream().map(PortMapping::toRange).collect(Collectors.toList())
+                            ))
+                            .build()
+            );
+        }
+        return OfferEvaluation.decline(requirement, taskId, offer, null);
     }
 
     private static class NameAndContainerPort {

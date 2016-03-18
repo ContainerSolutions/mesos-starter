@@ -18,11 +18,16 @@ public class RoleRequirement implements ResourceRequirement {
                 .filter(Protos.Resource::hasRole)
                 .filter(resource -> resource.getRole().equals(mesosConfig.getRole()))
                 .collect(Collectors.toList());
-        return new OfferEvaluation(
-                requirement, taskId, offer,
-                !roleResources.isEmpty(),
-                Collections.emptyMap(),
-                Collections.emptyList(),
-                roleResources);
+        if (!roleResources.isEmpty()) {
+            return OfferEvaluation.accept(
+                    requirement,
+                    taskId,
+                    offer,
+                    Collections.emptyMap(),
+                    Collections.emptyList(),
+                    roleResources
+            );
+        }
+        return OfferEvaluation.decline(requirement, taskId, offer, "No resources for role " + mesosConfig.getRole());
     }
 }

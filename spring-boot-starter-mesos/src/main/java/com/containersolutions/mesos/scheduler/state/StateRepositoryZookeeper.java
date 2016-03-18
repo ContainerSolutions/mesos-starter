@@ -65,6 +65,7 @@ public class StateRepositoryZookeeper implements StateRepository {
 
     @Override
     public void store(Protos.TaskInfo taskInfo) {
+        logger.debug("Persisting taskInfo for taskId=" + taskInfo.getTaskId().getValue());
         Set<Protos.TaskInfo> taskInfos = allTaskInfos();
         taskInfos.add(taskInfo);
         set("tasks", taskInfos);

@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ManagedResource
 public class InstanceCount {
     final AtomicInteger count;
-    final AtomicInteger tentative = new AtomicInteger(0);
 
     @Autowired
     ApplicationEventPublisher applicationEventPublisher;
@@ -29,23 +28,5 @@ public class InstanceCount {
     public void setCount(int count) {
         this.count.set(count);
         applicationEventPublisher.publishEvent(new InstanceCountChangeEvent(count));
-    }
-
-    @ManagedAttribute
-    public int getTentative() {
-        return tentative.get();
-    }
-
-    @ManagedAttribute
-    public void setTentative(int tentative) {
-        this.tentative.set(tentative);
-    }
-
-    public void incrementTentative() {
-        tentative.incrementAndGet();
-    }
-
-    public void decrementTentative() {
-        tentative.decrementAndGet();
     }
 }
