@@ -111,22 +111,23 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
 
     @Override
     public void resourceOffers(SchedulerDriver schedulerDriver, List<Protos.Offer> offers) {
-        AtomicInteger startedTasks = new AtomicInteger(0);
+        AtomicInteger acceptedOffers = new AtomicInteger(0);
+        AtomicInteger rejectedOffers = new AtomicInteger(0);
         offers.stream()
                 .peek(offer -> logger.debug("Received offerId=" + offer.getId().getValue() + " for slaveId=" + offer.getSlaveId().getValue()))
                 .map(offer -> offerStrategyFilter.evaluate(uuidSupplier.get().toString(), offer))
+                .peek(offerEvaluation -> (offerEvaluation.isValid() ? acceptedOffers : rejectedOffers).incrementAndGet())
                 .filter(StreamHelper.onNegative(
                         OfferEvaluation::isValid,
                         offerEvaluation -> schedulerDriver.declineOffer(offerEvaluation.getOffer().getId())))
                 .peek(offerEvaluation -> logger.info("Accepting offer offerId=" + offerEvaluation.getOffer().getId().getValue() + " on slaveId=" + offerEvaluation.getOffer().getSlaveId().getValue()))
                 .map(taskMaterializer::createProposal)
-//                .peek(taskProposal -> logger.debug("Launcing task " + taskProposal.getTaskInfo().toString()))
-                .peek(taskProposal -> startedTasks.incrementAndGet())
+//                .peek(taskProposal -> logger.debug("Launching task " + taskProposal.getTaskInfo().toString()))
                 .forEach(taskProposal -> {
                     schedulerDriver.launchTasks(Collections.singleton(taskProposal.getOfferId()), Collections.singleton(taskProposal.getTaskInfo()));
                     stateRepository.store(taskProposal.taskInfo);
                 });
-        logger.debug("Finished evaluating " + offers.size() + " offers");
+        logger.info("Finished evaluating " + offers.size() + " offers. Accepted " + acceptedOffers.get() + " offers and rejected " + rejectedOffers.get());
     }
 
     @Override
@@ -136,7 +137,7 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
 
     @Override
     public void statusUpdate(SchedulerDriver schedulerDriver, Protos.TaskStatus taskStatus) {
-        logger.debug("Received status update: " + taskStatus.getMessage());
+        logger.debug("Received status update for taskID=" + taskStatus.getTaskId().getValue() + " state=" + taskStatus.getState() + " message='" + taskStatus.getMessage() + "' ");
         applicationEventPublisher.publishEvent(new StatusUpdateEvent(taskStatus));
     }
 
