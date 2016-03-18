@@ -18,7 +18,7 @@ public class TaskInfoFactoryCommand implements TaskInfoFactory {
     protected String applicationName;
 
     @Autowired
-    MesosProtoFactory<Protos.CommandInfo.Builder, Map<String, String>> commandInfoMesosProtoFactory;
+    MesosProtoFactory<Protos.CommandInfo, Map<String, String>> commandInfoMesosProtoFactory;
 
     @Autowired
     Supplier<UUID> uuidSupplier;
@@ -31,7 +31,7 @@ public class TaskInfoFactoryCommand implements TaskInfoFactory {
                 .setSlaveId(offer.getSlaveId())
                 .setTaskId(Protos.TaskID.newBuilder().setValue(taskId))
                 .addAllResources(resources)
-                .setCommand(commandInfoMesosProtoFactory.create(executionParameters.getEnvironmentVariables()).build())
+                .setCommand(commandInfoMesosProtoFactory.create(executionParameters.getEnvironmentVariables()))
                 .build();
     }
 }

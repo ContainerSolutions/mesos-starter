@@ -60,7 +60,7 @@ public class FrameworkInfoFactoryTest {
         if (auth) {
             return Protos.Credential.newBuilder()
                     .setPrincipal(PRINCIPAL)
-                    .setSecret(ByteString.copyFrom("secret".getBytes()))
+                    .setSecret("secret")
                     .build();
         } else {
             return Protos.Credential.getDefaultInstance();
