@@ -9,6 +9,10 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <properties>
+        <createChecksum>true</createChecksum>
+    </properties>
+
     <modules>
         <module>spring-boot-starter-mesos</module>
         <module>mesos-starter-sample</module>
