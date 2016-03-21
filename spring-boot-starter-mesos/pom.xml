@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.containersolutions.mesos</groupId>
         <artifactId>mesos-starter</artifactId>
-        <version>0.2</version>
+        <version>0.2.1</version>
     </parent>
 
     <artifactId>spring-boot-starter-mesos</artifactId>
