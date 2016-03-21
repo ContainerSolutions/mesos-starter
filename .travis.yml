@@ -13,7 +13,7 @@ notifications:
 
 deploy:
   provider: releases
-  api_key: "GITHUB OAUTH TOKEN"
+  api_key: "$GITHUB_OAUTH_TOKEN"
   file:
     - "/home/travis/.m2/repository/com/containersolutions/mesos/spring-boot-starter-mesos/$TRAVIS_TAG/spring-boot-starter-mesos-$TRAVIS_TAG.jar"
     - "/home/travis/.m2/repository/com/containersolutions/mesos/spring-boot-starter-mesos/$TRAVIS_TAG/spring-boot-starter-mesos-$TRAVIS_TAG.jar.sh1"
