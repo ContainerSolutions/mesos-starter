@@ -42,14 +42,14 @@ public class StateRepositoryZookeeper implements StateRepository {
         if (value.length == 0) {
             return Optional.empty();
         }
-        return Optional.of(Protos.FrameworkID.newBuilder().setValue(new String(value)).build());
+        return Optional.of(Protos.FrameworkID.newBuilder().setValue(((String) SerializationUtils.deserialize(value))).build());
     }
 
     @EventListener
     public void onFrameworkRegistered(FrameworkRegistreredEvent event) {
         logger.debug("Received frameworkId=" + event.getFrameworkID().getValue());
         frameworkId.set(event.getFrameworkID());
-        set("frameworkid", frameworkId.get());
+        set("frameworkid", frameworkId.get().getValue());
     }
 
     @EventListener
