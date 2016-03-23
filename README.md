@@ -172,8 +172,11 @@ This way the scheduler will take all resources allocated to the role and make su
 
 It is always recommended to run the scheduler with a Mesos role and reserved resources in such cases to make sure that scheduler is being offered resources for all nodes in the cluster.
 
+# Resiliency
+The tasks will restart if they receive a `SIGKILL` or are lost (system crashes etc.). 
+
 # Framework shutdown
-The tasks will restart if they receive a `SIGKILL` or are lost (system crashes etc.). If you want to completely de-register the framework and shutdown all tasks, just stop the scheduler with a plain `SIGTERM`.
+If you want to completely de-register the framework and shutdown all tasks, just stop the scheduler with a `SIGTERM`.
 
 # Debugging
 If you have any problems, then you can alter the log level in the application and in Spring. For example adding this to the CLI: `--logging.level.com.containersolutions.mesos=DEBUG --debug` will start the framework and Spring in debug mode. The framework will accept the values:`DEBUG`, `INFO`, `WARN`, `ERROR`.
