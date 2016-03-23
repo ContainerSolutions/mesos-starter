@@ -34,8 +34,6 @@ public class SampleApplication {
 }
 ```
 
-4. Run!
-
 For a complete example, see `mesos-starter-sample` module.
 
 # Configuration
