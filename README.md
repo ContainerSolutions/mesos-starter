@@ -60,7 +60,7 @@ Command                         | Description                                   
 `mesos.role`                    | Reject offers that are not offered to this role       | `*`                   |
 `mesos.docker.image`            | Docker image to use                                   |                       |
 `mesos.docker.network`          | Type of docker network                                | `BRIDGE`              |
-`mesos.command`                 | Set the docker CMD or shell command                   |                       | Yes if mesos.docker.image != null
+`mesos.command`                 | Set the docker CMD or shell command                   |                       | Yes if `mesos.docker.image != null`
 `mesos.uri`                     | A list of files to download into the Mesos sandbox    |                       |
 `mesos.principal`               | The Mesos principal for framework authentication      |                       |
 `mesos.secret`                  | The Mesos secret for framework authentication         |                       | 
