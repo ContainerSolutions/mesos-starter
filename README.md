@@ -2,10 +2,10 @@
 
 [![Join the chat at https://gitter.im/ContainerSolutions/mesos-starter](https://badges.gitter.im/ContainerSolutions/mesos-starter.svg)](https://gitter.im/ContainerSolutions/mesos-starter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Spring Boot starter package for writing Mesos frameworks. Replaces Mesos boilerplate with configuration options. Significantly reduces framework development time. Reduces the number of bugs by using generic, well tested code. Flexible enough to suit most frameworks.
+Spring Boot starter package for writing Mesos frameworks. Significantly reduces framework development time. Reduces the number of bugs by using generic, well tested code. Flexible enough to suit most frameworks.
 
 ## Features
-- [x] State stored in File or ZooKeeper
+- [x] State stored in File, Zookeeper or any storage that implements `com.containersolutions.mesos.scheduler.state.StateRepository`
 - [x] Resilient against failure (automatically restarts tasks)
 - [x] Mesos authentication/authorisation
 - [ ] ZooKeeper Authorisation (should work, requires testing)
@@ -52,15 +52,15 @@ Command                         | Description                                   
 `mesos.framework.name`          | Framework name used in Mesos and ZooKeeper            |                       | Yes
 `mesos.master`                  | Path to mesos master                                  |                       | Yes
 `mesos.zookeeper.server`        | IP:PORT of the zookeeper server                       |                       | Yes
-`mesos.resources.cpus`          | CPUs allocated to the task                            | Accept all            |
-`mesos.resources.mem`           | RAM allocated to the task                             | Accept all            |
+`mesos.resources.cpus`          | CPUs allocated to the task                            |                       | Yes
+`mesos.resources.mem`           | RAM allocated to the task                             |                       | Yes
 `mesos.resources.count`         | Number of task instances                              | As many as possible   |
 `mesos.resources.ports`         | A map of port mappings                                |                       |
-`mesos.resources.distinctSlave` | Reject offers from hosts that already have a task     | `false`               |
+`mesos.resources.distinctSlave` | Reject offers from hosts that already have a task     | `true`                |
 `mesos.role`                    | Reject offers that are not offered to this role       | `*`                   |
 `mesos.docker.image`            | Docker image to use                                   |                       |
 `mesos.docker.network`          | Type of docker network                                | `BRIDGE`              |
-`mesos.command`                 | Set the docker CMD or shell command                   |                       |
+`mesos.command`                 | Set the docker CMD or shell command                   |                       | Yes if mesos.docker.image != null
 `mesos.uri`                     | A list of files to download into the Mesos sandbox    |                       |
 `mesos.principal`               | The Mesos principal for framework authentication      |                       |
 `mesos.secret`                  | The Mesos secret for framework authentication         |                       | 
@@ -71,8 +71,10 @@ The `mesos.master` setting accepts any of the following formats: `host:port`, `z
 ## Port Mapping
 The ports requirement serves two purposes. Requesting port resources from Mesos and mapping them to the application. The port settings must follow the format:
 ```
-mesos.resources.ports.[NAME].{host,container}={ANY,UNPRIVILEGED,PRIVILEGED,[INTEGER]}
+mesos.resources.ports.[NAME].host={ANY,UNPRIVILEGED,PRIVILEGED,[INTEGER]}
+mesos.resources.ports.[NAME].container=[INTEGER]
 ```
+
 Where:
 - `[NAME]` will be used for the (upper case) environmental variable
 - `host` refers to the port number on the host machine
