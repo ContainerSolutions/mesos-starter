@@ -2,12 +2,19 @@
 
 [![Join the chat at https://gitter.im/ContainerSolutions/mesos-starter](https://badges.gitter.im/ContainerSolutions/mesos-starter.svg)](https://gitter.im/ContainerSolutions/mesos-starter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Spring Boot starter package for writing Mesos frameworks
+Spring Boot starter package for writing Mesos frameworks. Replaces Mesos boilerplate with configuration options. Significantly reduces framework development time. Reduces the number of bugs by using generic, well tested code. Flexible enough to suit most frameworks.
 
 ## Features
-- Vertical scaling
-- Deploy executor on all slaves
-- Support for Docker containers
+- [x] State stored in File or ZooKeeper
+- [x] Resilient against failure (automatically restarts tasks)
+- [x] Mesos authentication/authorisation
+- [ ] ZooKeeper Authorisation (should work, requires testing)
+- [x] Horizontal scaling
+- [x] Command and Docker support
+- [x] Resource specification (including port)
+- [x] URI support (download files into the Mesos sandbox)
+- [x] Different orchestration strategies
+- [x] Decoupled from Mesos. Use any version 0.25+.
 
 ## Getting Started
 Start by adding the `spring-boot-starter-mesos` dependency to your project
