@@ -126,10 +126,10 @@ This rule only accept offers assigned to the Role defined in `mesos.role`.
 ## Framework Authentication/Authorisation
 To use [Framework Authentication](http://mesos.apache.org/documentation/latest/authentication/), please pass the following settings:
 
-| Command | Description |
-| --- | --- |
-| mesos.principal | The Mesos principal |
-| mesos.secret | The Mesos secret |
+| Command | Description | Default | Required |
+| --- | --- | --- | --- |
+| mesos.principal | The Mesos principal | | |
+| mesos.secret | The Mesos secret | | |
 
 # Use cases
 
