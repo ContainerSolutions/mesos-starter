@@ -20,6 +20,22 @@ public class MesosConfigProperties {
     private String secret;
     private List<String> uri = new ArrayList<>();
 
+    public String getMaster() {
+        return master;
+    }
+
+    public void setMaster(String master) {
+        this.master = master;
+    }
+
+    public ZookeeperConfigProperties getZookeeper() {
+        return zookeeper;
+    }
+
+    public void setZookeeper(ZookeeperConfigProperties zookeeper) {
+        this.zookeeper = zookeeper;
+    }
+
     public String getRole() {
         return role;
     }

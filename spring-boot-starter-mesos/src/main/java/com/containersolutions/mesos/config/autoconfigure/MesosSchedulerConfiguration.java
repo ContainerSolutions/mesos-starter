@@ -37,6 +37,7 @@ public class MesosSchedulerConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public Scheduler scheduler() {
         return new UniversalScheduler();
     }
