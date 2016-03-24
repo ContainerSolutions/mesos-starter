@@ -9,8 +9,11 @@ import java.util.Map;
 
 @ConfigurationProperties(prefix = "mesos")
 public class MesosConfigProperties {
+    private String master;
+    private ZookeeperConfigProperties zookeeper;
     private String role = "*";
     private String command;
+    private DockerConfigProperties docker;
     private Map<String, String> environment = new HashMap<>();
     private ResourcesConfigProperties resources = new ResourcesConfigProperties();
     private String principal;
@@ -71,5 +74,13 @@ public class MesosConfigProperties {
 
     public void setUri(List<String> uri) {
         this.uri = uri;
+    }
+
+    public DockerConfigProperties getDocker() {
+        return docker;
+    }
+
+    public void setDocker(DockerConfigProperties docker) {
+        this.docker = docker;
     }
 }

@@ -1,5 +1,6 @@
 package com.containersolutions.mesos.config.autoconfigure;
 
+import com.containersolutions.mesos.config.validation.MesosSchedulerPropertiesValidator;
 import com.containersolutions.mesos.scheduler.*;
 import com.containersolutions.mesos.scheduler.config.MesosConfigProperties;
 import com.containersolutions.mesos.scheduler.requirements.*;
@@ -8,8 +9,6 @@ import com.containersolutions.mesos.scheduler.state.StateRepositoryFile;
 import com.containersolutions.mesos.scheduler.state.StateRepositoryZookeeper;
 import org.apache.mesos.Protos;
 import org.apache.mesos.Scheduler;
-import org.apache.mesos.state.State;
-import org.apache.mesos.state.ZooKeeperState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -23,7 +22,6 @@ import java.time.Clock;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicMarkableReference;
 import java.util.function.Supplier;
 
@@ -32,6 +30,11 @@ public class MesosSchedulerConfiguration {
 
     @Autowired
     Environment environment;
+
+    @Bean
+    public MesosSchedulerPropertiesValidator configurationPropertiesValidator() {
+        return new MesosSchedulerPropertiesValidator();
+    }
 
     @Bean
     public Scheduler scheduler() {
@@ -75,21 +78,10 @@ public class MesosSchedulerConfiguration {
         return new StateRepositoryFile();
     }
 
-    @Bean
+    @Bean(initMethod = "connect")
     @ConditionalOnMissingBean(StateRepository.class)
-    public StateRepository stateRepositoryZookeeper() {
+    public StateRepositoryZookeeper stateRepositoryZookeeper() {
         return new StateRepositoryZookeeper();
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "mesos.zookeeper", name = "server")
-    public State zkState() {
-        return new ZooKeeperState(
-                environment.getRequiredProperty("mesos.zookeeper.server"),
-                1000,
-                TimeUnit.MILLISECONDS,
-                "/" + environment.getProperty("mesos.framework.name", "default")
-        );
     }
 
     @Bean
@@ -167,15 +159,15 @@ public class MesosSchedulerConfiguration {
     @ConditionalOnMissingBean(name = "cpuRequirement")
     @ConditionalOnProperty(prefix = "mesos.resources", name = "cpus")
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    public ResourceRequirement cpuRequirement() {
-        return simpleScalarRequirement("cpus", environment.getRequiredProperty("mesos.resources.cpus", Double.class));
+    public ResourceRequirement cpuRequirement(MesosConfigProperties mesosConfigProperties) {
+        return simpleScalarRequirement("cpus", mesosConfigProperties.getResources().getCpus());
     }
 
     @Bean
     @ConditionalOnMissingBean(name = "memRequirement")
     @ConditionalOnProperty(prefix = "mesos.resources", name = "mem")
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    public ResourceRequirement memRequirement() {
+    public ResourceRequirement memRequirement(Environment environment) {
         return simpleScalarRequirement("mem", environment.getRequiredProperty("mesos.resources.mem", Double.class));
     }
 
