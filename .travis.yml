@@ -17,6 +17,8 @@ deploy:
   file:
     - "/home/travis/.m2/repository/com/containersolutions/mesos/spring-boot-starter-mesos/$TRAVIS_TAG/spring-boot-starter-mesos-$TRAVIS_TAG.jar"
     - "/home/travis/.m2/repository/com/containersolutions/mesos/spring-boot-starter-mesos/$TRAVIS_TAG/spring-boot-starter-mesos-$TRAVIS_TAG.jar.sha1"
+    - "/home/travis/.m2/repository/com/containersolutions/mesos/spring-boot-starter-mesos/$TRAVIS_TAG/spring-boot-starter-mesos-$TRAVIS_TAG-sources.jar"
+    - "/home/travis/.m2/repository/com/containersolutions/mesos/spring-boot-starter-mesos/$TRAVIS_TAG/spring-boot-starter-mesos-$TRAVIS_TAG-sources.jar.sha1"
     - "/home/travis/.m2/repository/com/containersolutions/mesos/spring-boot-starter-mesos/$TRAVIS_TAG/spring-boot-starter-mesos-$TRAVIS_TAG.pom"
     - "/home/travis/.m2/repository/com/containersolutions/mesos/spring-boot-starter-mesos/$TRAVIS_TAG/spring-boot-starter-mesos-$TRAVIS_TAG.pom.sha1"
   skip_cleanup: true
