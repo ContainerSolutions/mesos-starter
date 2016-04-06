@@ -36,6 +36,10 @@ public class MesosSchedulerPropertiesValidator implements Validator {
             return;
         }
 
+        if (resources.getCount() < 0) {
+            errors.rejectValue("resources.count", "resources.count.not_positive", "Count property must be a positive number");
+        }
+
         if (resources.getCpus() <= 0.0) {
             errors.rejectValue("resources.cpus", "resources.cpus.not_positive", "cpus must be a positive number");
         }

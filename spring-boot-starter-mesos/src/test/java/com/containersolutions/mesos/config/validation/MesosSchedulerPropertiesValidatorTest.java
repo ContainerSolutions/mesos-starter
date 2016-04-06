@@ -35,6 +35,16 @@ public class MesosSchedulerPropertiesValidatorTest {
     }
 
     @Test
+    public void willRejectCountIfNegative() throws Exception {
+        config.setResources(new ResourcesConfigProperties());
+        config.getResources().setCount(-1);
+
+        validator.validate(config, errors);
+        assertEquals("resources.count.not_positive", errors.getFieldError("resources.count").getCode());
+
+
+    }
+    @Test
     public void willRejectCpuIfNegative() throws Exception {
         config.setResources(new ResourcesConfigProperties());
         config.getResources().setCpus(-1.0);

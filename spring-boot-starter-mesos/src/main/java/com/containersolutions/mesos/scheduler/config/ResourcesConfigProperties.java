@@ -9,6 +9,7 @@ public class ResourcesConfigProperties {
     private double mem;
 
     private Map<String, ResourcePortConfigProperties> ports = new LinkedHashMap<>();
+    private int count;
 
     public double getCpus() {
         return cpus;
@@ -32,5 +33,13 @@ public class ResourcesConfigProperties {
 
     public void setPorts(Map<String, ResourcePortConfigProperties> ports) {
         this.ports = ports;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public int getCount() {
+        return count;
     }
 }
