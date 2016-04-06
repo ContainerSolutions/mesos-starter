@@ -9,13 +9,32 @@ import java.util.Map;
 
 @ConfigurationProperties(prefix = "mesos")
 public class MesosConfigProperties {
+    private String master;
+    private ZookeeperConfigProperties zookeeper;
     private String role = "*";
     private String command;
+    private DockerConfigProperties docker;
     private Map<String, String> environment = new HashMap<>();
     private ResourcesConfigProperties resources = new ResourcesConfigProperties();
     private String principal;
     private String secret;
     private List<String> uri = new ArrayList<>();
+
+    public String getMaster() {
+        return master;
+    }
+
+    public void setMaster(String master) {
+        this.master = master;
+    }
+
+    public ZookeeperConfigProperties getZookeeper() {
+        return zookeeper;
+    }
+
+    public void setZookeeper(ZookeeperConfigProperties zookeeper) {
+        this.zookeeper = zookeeper;
+    }
 
     public String getRole() {
         return role;
@@ -71,5 +90,13 @@ public class MesosConfigProperties {
 
     public void setUri(List<String> uri) {
         this.uri = uri;
+    }
+
+    public DockerConfigProperties getDocker() {
+        return docker;
+    }
+
+    public void setDocker(DockerConfigProperties docker) {
+        this.docker = docker;
     }
 }

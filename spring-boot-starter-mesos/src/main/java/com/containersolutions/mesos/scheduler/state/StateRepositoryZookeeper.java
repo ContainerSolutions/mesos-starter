@@ -6,9 +6,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mesos.Protos;
 import org.apache.mesos.state.State;
+import org.apache.mesos.state.ZooKeeperState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
 import org.springframework.util.SerializationUtils;
 
 import javax.annotation.PreDestroy;
@@ -16,6 +18,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -25,8 +28,10 @@ public class StateRepositoryZookeeper implements StateRepository {
     protected final Log logger = LogFactory.getLog(getClass());
     AtomicReference<Protos.FrameworkID> frameworkId = new AtomicReference<>();
 
-    @Autowired
     State zkState;
+
+    @Autowired
+    Environment environment;
 
     @Value("${mesos.framework.name:default}")
     String frameworkName;
@@ -43,6 +48,15 @@ public class StateRepositoryZookeeper implements StateRepository {
             return Optional.empty();
         }
         return Optional.of(Protos.FrameworkID.newBuilder().setValue(((String) SerializationUtils.deserialize(value))).build());
+    }
+
+    public void connect() {
+        zkState = new ZooKeeperState(
+                environment.getRequiredProperty("mesos.zookeeper.server"),
+                1000,
+                TimeUnit.MILLISECONDS,
+                "/" + environment.getProperty("mesos.framework.name", "default")
+        );
     }
 
     @EventListener
