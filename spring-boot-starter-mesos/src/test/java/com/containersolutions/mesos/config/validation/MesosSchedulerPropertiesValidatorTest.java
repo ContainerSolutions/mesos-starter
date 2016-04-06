@@ -1,44 +1,114 @@
 package com.containersolutions.mesos.config.validation;
 
-import com.containersolutions.mesos.scheduler.config.MesosConfigProperties;
-import org.junit.Rule;
+import com.containersolutions.mesos.scheduler.config.*;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.validation.DirectFieldBindingResult;
+import org.springframework.validation.Errors;
 
-import static org.junit.Assert.assertNotNull;
+import java.util.Collections;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MesosSchedulerPropertiesValidatorTest.SimpleConfiguration.class)
-@TestPropertySource(properties = {"mesos.master: none"})
+import static org.junit.Assert.assertEquals;
+
 public class MesosSchedulerPropertiesValidatorTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    private MesosConfigProperties config = new MesosConfigProperties();
 
-    @Autowired
-    MesosSchedulerPropertiesValidator validator;
+    private Errors errors = new DirectFieldBindingResult(config, "mesos");
 
-    @Configuration
-    public static class SimpleConfiguration {
-        @Bean
-        public MesosSchedulerPropertiesValidator configurationPropertiesValidator() {
-            return new MesosSchedulerPropertiesValidator();
-        }
 
-        @Bean
-        public MesosConfigProperties mesosConfigProperties() {
-            return new MesosConfigProperties();
-        }
+    private MesosSchedulerPropertiesValidator validator = new MesosSchedulerPropertiesValidator();
+
+    @Test
+    public void willRejectIfMasterIsEmpty() throws Exception {
+        config.setMaster(" ");
+
+        validator.validate(config, errors);
+        assertEquals("master.empty", errors.getFieldError("master").getCode());
     }
 
     @Test
-    public void name() throws Exception {
-        assertNotNull(validator);
+    public void willRejectIfZookeeperIsEmpty() throws Exception {
+        config.setZookeeper(new ZookeeperConfigProperties());
+        config.getZookeeper().setServer(" ");
+
+        validator.validate(config, errors);
+        assertEquals("zookeeper.server.empty", errors.getFieldError("zookeeper.server").getCode());
+    }
+
+    @Test
+    public void willRejectCpuIfNegative() throws Exception {
+        config.setResources(new ResourcesConfigProperties());
+        config.getResources().setCpus(-1.0);
+
+        validator.validate(config, errors);
+        assertEquals("resources.cpus.not_positive", errors.getFieldError("resources.cpus").getCode());
+
+    }
+
+    @Test
+    public void willRejectMemIfNegative() throws Exception {
+        config.setResources(new ResourcesConfigProperties());
+        config.getResources().setMem(-128.0);
+
+        validator.validate(config, errors);
+        assertEquals("resources.mem.not_positive", errors.getFieldError("resources.mem").getCode());
+    }
+
+    @Test
+    public void willRequireHostPort() throws Exception {
+        config.setResources(new ResourcesConfigProperties() {{
+            setPorts(Collections.singletonMap("test", new ResourcePortConfigProperties() {{
+                setContainer(1);
+            }}));
+        }});
+
+        validator.validate(config, errors);
+
+        assertEquals("resources.ports.test.host.empty", errors.getFieldError("resources.ports").getCode());
+    }
+
+    @Test
+    public void willRequireContainerPortWhenContainerized() throws Exception {
+        config.setDocker(new DockerConfigProperties() {{
+            setImage("test");
+        }});
+        config.setResources(new ResourcesConfigProperties() {{
+            setPorts(Collections.singletonMap("test", new ResourcePortConfigProperties() {{
+                setHost("ANY");
+            }}));
+        }});
+
+        validator.validate(config, errors);
+
+        assertEquals("resources.ports.test.container.empty", errors.getFieldError("resources.ports").getCode());
+    }
+
+    @Test
+    public void willRejectContainerPortWhenNotContainerized() throws Exception {
+        config.setResources(new ResourcesConfigProperties() {{
+            setPorts(Collections.singletonMap("test", new ResourcePortConfigProperties() {{
+                setHost("ANY");
+                setContainer(1);
+            }}));
+        }});
+
+        validator.validate(config, errors);
+
+        assertEquals("resources.ports.test.container.not_containerized", errors.getFieldError("resources.ports").getCode());
+    }
+
+    @Test
+    public void willNotRejectAGoodConfiguration() throws Exception {
+        config.setMaster("leader.mesos:5050");
+        config.setZookeeper(new ZookeeperConfigProperties() {{
+            setServer("leader.mesos:2181");
+        }});
+        config.setResources(new ResourcesConfigProperties() {{
+            setCpus(1.0);
+            setMem(128);
+        }});
+
+        validator.validate(config, errors);
+
+        assertEquals(0, errors.getErrorCount());
     }
 }
