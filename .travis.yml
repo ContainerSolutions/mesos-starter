@@ -15,6 +15,8 @@ deploy:
   provider: releases
   api_key: "$GITHUB_OAUTH_TOKEN"
   file:
+    - "/home/travis/.m2/repository/com/containersolutions/mesos/mesos-starter/$TRAVIS_TAG/mesos-starter-$TRAVIS_TAG.pom"
+    - "/home/travis/.m2/repository/com/containersolutions/mesos/mesos-starter/$TRAVIS_TAG/mesos-starter-$TRAVIS_TAG.pom.sha1"
     - "/home/travis/.m2/repository/com/containersolutions/mesos/spring-boot-starter-mesos/$TRAVIS_TAG/spring-boot-starter-mesos-$TRAVIS_TAG.jar"
     - "/home/travis/.m2/repository/com/containersolutions/mesos/spring-boot-starter-mesos/$TRAVIS_TAG/spring-boot-starter-mesos-$TRAVIS_TAG.jar.sha1"
     - "/home/travis/.m2/repository/com/containersolutions/mesos/spring-boot-starter-mesos/$TRAVIS_TAG/spring-boot-starter-mesos-$TRAVIS_TAG-javadoc.jar"
