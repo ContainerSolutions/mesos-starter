@@ -20,7 +20,6 @@ public class MesosSchedulerPropertiesValidator implements Validator {
             MesosConfigProperties config = (MesosConfigProperties) target;
 
             rejectIfEmptyOrWhitespace(errors, "master", "master.empty", "No Mesos Master set");
-            rejectIfEmptyOrWhitespace(errors, "zookeeper.server", "zookeeper.server.empty", "");
 
             validateResources(errors, config.getResources(), isContainerized(config));
         }

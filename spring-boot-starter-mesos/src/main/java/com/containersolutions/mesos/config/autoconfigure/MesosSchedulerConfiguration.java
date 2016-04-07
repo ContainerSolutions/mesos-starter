@@ -73,16 +73,17 @@ public class MesosSchedulerConfiguration {
         return new AtomicMarkableReference<>(Protos.FrameworkID.newBuilder().setValue("").build(), false);
     }
 
-    @Bean
-    @ConditionalOnProperty(prefix = "mesos.state.file", name = "location")
-    public StateRepository stateRepositoryFile() {
-        return new StateRepositoryFile();
-    }
-
     @Bean(initMethod = "connect")
-    @ConditionalOnMissingBean(StateRepository.class)
+    @ConditionalOnProperty(prefix = "mesos.zookeeper", name = "server")
     public StateRepositoryZookeeper stateRepositoryZookeeper() {
         return new StateRepositoryZookeeper();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(StateRepository.class)
+//    @ConditionalOnProperty(prefix = "mesos.state.file", name = "location")
+    public StateRepository stateRepositoryFile() {
+        return new StateRepositoryFile();
     }
 
     @Bean

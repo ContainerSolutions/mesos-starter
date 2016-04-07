@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: Test App
+
+mesos:
+  master: none:0
+  count: 1
+  command: sleep 60
+  resources:
+    cpus: 0.1
+    mem: 64
+  docker:
+    image: alpine
