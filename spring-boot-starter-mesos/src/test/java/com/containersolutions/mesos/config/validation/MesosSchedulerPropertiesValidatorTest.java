@@ -26,15 +26,6 @@ public class MesosSchedulerPropertiesValidatorTest {
     }
 
     @Test
-    public void willRejectIfZookeeperIsEmpty() throws Exception {
-        config.setZookeeper(new ZookeeperConfigProperties());
-        config.getZookeeper().setServer(" ");
-
-        validator.validate(config, errors);
-        assertEquals("zookeeper.server.empty", errors.getFieldError("zookeeper.server").getCode());
-    }
-
-    @Test
     public void willRejectCountIfNegative() throws Exception {
         config.setResources(new ResourcesConfigProperties());
         config.getResources().setCount(-1);
