@@ -14,6 +14,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.SerializationUtils;
 
 import javax.annotation.PreDestroy;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -26,9 +27,9 @@ import static com.containersolutions.mesos.utils.MesosHelper.isTerminalTaskState
 
 public class StateRepositoryZookeeper implements StateRepository {
     protected final Log logger = LogFactory.getLog(getClass());
-    AtomicReference<Protos.FrameworkID> frameworkId = new AtomicReference<>();
+    private final AtomicReference<Protos.FrameworkID> frameworkId = new AtomicReference<>();
 
-    State zkState;
+    private State zkState;
 
     @Autowired
     Environment environment;
@@ -78,11 +79,13 @@ public class StateRepositoryZookeeper implements StateRepository {
     }
 
     @Override
-    public void store(Protos.TaskInfo taskInfo) {
-        logger.debug("Persisting taskInfo for taskId=" + taskInfo.getTaskId().getValue());
-        Set<Protos.TaskInfo> taskInfos = allTaskInfos();
-        taskInfos.add(taskInfo);
-        set("tasks", taskInfos);
+    public void store(Collection<Protos.TaskInfo> taskInfos) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Persisting taskInfos for " + taskInfos.stream().map(taskInfo -> "taskId=" + taskInfo.getTaskId().getValue()).collect(Collectors.joining(" ")));
+        }
+        Set<Protos.TaskInfo> storedTaskInfos = allTaskInfos();
+        storedTaskInfos.addAll(taskInfos);
+        set("tasks", storedTaskInfos);
     }
 
     @Override

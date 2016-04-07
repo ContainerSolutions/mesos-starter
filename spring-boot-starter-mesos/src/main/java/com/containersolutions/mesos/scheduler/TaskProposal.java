@@ -2,20 +2,24 @@ package com.containersolutions.mesos.scheduler;
 
 import org.apache.mesos.Protos;
 
-class TaskProposal {
-    Protos.Offer offer;
-    Protos.TaskInfo taskInfo;
+import java.util.List;
 
-    public TaskProposal(Protos.Offer offer, Protos.TaskInfo taskInfo) {
+import static java.util.Arrays.asList;
+
+class TaskProposal {
+    private final Protos.Offer offer;
+    private final List<Protos.TaskInfo> taskInfos;
+
+    public TaskProposal(Protos.Offer offer, Protos.TaskInfo ... taskInfos) {
         this.offer = offer;
-        this.taskInfo = taskInfo;
+        this.taskInfos = asList(taskInfos);
     }
 
     public Protos.OfferID getOfferId() {
         return offer.getId();
     }
 
-    public Protos.TaskInfo getTaskInfo() {
-        return taskInfo;
+    public List<Protos.TaskInfo> getTaskInfos() {
+        return taskInfos;
     }
 }

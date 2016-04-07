@@ -144,8 +144,8 @@ public class MesosSchedulerConfiguration {
 
     @Bean
     @ConditionalOnProperty(prefix = "mesos.resources", name = "count")
-    public InstanceCount instanceCount() {
-        return new InstanceCount(environment.getProperty("mesos.resources.count", Integer.class, 1));
+    public InstanceCount instanceCount(MesosConfigProperties configProperties) {
+        return new InstanceCount(configProperties.getResources().getCount());
     }
 
     @Bean

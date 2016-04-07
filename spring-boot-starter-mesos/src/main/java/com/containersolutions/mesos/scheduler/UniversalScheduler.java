@@ -124,8 +124,8 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
                 .map(taskMaterializer::createProposal)
 //                .peek(taskProposal -> logger.debug("Launching task " + taskProposal.getTaskInfo().toString()))
                 .forEach(taskProposal -> {
-                    schedulerDriver.launchTasks(Collections.singleton(taskProposal.getOfferId()), Collections.singleton(taskProposal.getTaskInfo()));
-                    stateRepository.store(taskProposal.taskInfo);
+                    schedulerDriver.launchTasks(Collections.singleton(taskProposal.getOfferId()), taskProposal.getTaskInfos());
+                    stateRepository.store(taskProposal.getTaskInfos());
                 });
         logger.info("Finished evaluating " + offers.size() + " offers. Accepted " + acceptedOffers.get() + " offers and rejected " + rejectedOffers.get());
     }

@@ -14,6 +14,7 @@ import org.springframework.util.SerializationUtils;
 import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -22,9 +23,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class StateRepositoryFile implements StateRepository {
     protected final Log logger = LogFactory.getLog(getClass());
 
-    AtomicReference<Protos.FrameworkID> frameworkId = new AtomicReference<>();
+    private AtomicReference<Protos.FrameworkID> frameworkId = new AtomicReference<>();
 
-    File stateHome = new File(".state");
+    private File stateHome = new File(".state");
 
     @Value("${mesos.framework.name:default}")
     String frameworkName;
@@ -81,10 +82,10 @@ public class StateRepositoryFile implements StateRepository {
     }
 
     @Override
-    public void store(Protos.TaskInfo taskInfo) {
-        final Set<Protos.TaskInfo> taskInfos = allTaskInfos();
-        taskInfos.add(taskInfo);
-        save(taskInfos);
+    public void store(Collection<Protos.TaskInfo> taskInfos) {
+        final Set<Protos.TaskInfo> storedTaskInfos = allTaskInfos();
+        storedTaskInfos.addAll(taskInfos);
+        save(storedTaskInfos);
     }
 
     @Override

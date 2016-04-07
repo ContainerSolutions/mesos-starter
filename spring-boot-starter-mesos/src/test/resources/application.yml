@@ -4,9 +4,9 @@ spring:
 
 mesos:
   master: none:0
-  count: 1
   command: sleep 60
   resources:
+    count: 1
     cpus: 0.1
     mem: 64
   docker:

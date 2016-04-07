@@ -12,10 +12,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -42,8 +44,8 @@ public class UniversalSchedulerTest {
     @Mock
     TaskMaterializer taskMaterializer;
 
-    UUID uuid = UUID.randomUUID();
-    String taskId = uuid.toString();
+    private final UUID uuid = UUID.randomUUID();
+    private final String taskId = uuid.toString();
 
     @Test
     public void willDeclineInvalidOffers() throws Exception {
@@ -72,11 +74,11 @@ public class UniversalSchedulerTest {
         scheduler.resourceOffers(schedulerDriver, Collections.singletonList(offer));
 
         verify(schedulerDriver, never()).declineOffer(any(Protos.OfferID.class));
-        verify(schedulerDriver).launchTasks(Collections.singleton(offer.getId()), Collections.singleton(task));
+        verify(schedulerDriver).launchTasks(Collections.singleton(offer.getId()), asList(task));
 
-        ArgumentCaptor<Protos.TaskInfo> taskInfoArgumentCaptor = ArgumentCaptor.forClass(Protos.TaskInfo.class);
+        ArgumentCaptor<Collection<Protos.TaskInfo>> taskInfoArgumentCaptor = ArgumentCaptor.forClass(Collection.class);
         verify(stateRepository).store(taskInfoArgumentCaptor.capture());
-        Protos.TaskInfo taskInfo = taskInfoArgumentCaptor.getValue();
+        Protos.TaskInfo taskInfo = taskInfoArgumentCaptor.getValue().iterator().next();
         assertEquals(taskId, taskInfo.getTaskId().getValue());
     }
 }
