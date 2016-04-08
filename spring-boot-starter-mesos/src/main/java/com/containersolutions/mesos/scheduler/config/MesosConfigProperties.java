@@ -11,14 +11,9 @@ import java.util.Map;
 public class MesosConfigProperties {
     private String master;
     private ZookeeperConfigProperties zookeeper;
-    private String role = "*";
-    private String command;
-    private DockerConfigProperties docker;
-    private Map<String, String> environment = new HashMap<>();
-    private ResourcesConfigProperties resources = new ResourcesConfigProperties();
     private String principal;
     private String secret;
-    private List<String> uri = new ArrayList<>();
+    List<TaskConfigProperties> tasks = new ArrayList<>();
 
     public String getMaster() {
         return master;
@@ -34,38 +29,6 @@ public class MesosConfigProperties {
 
     public void setZookeeper(ZookeeperConfigProperties zookeeper) {
         this.zookeeper = zookeeper;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public String getCommand() {
-        return command;
-    }
-
-    public void setCommand(String command) {
-        this.command = command;
-    }
-
-    public Map<String, String> getEnvironment() {
-        return environment;
-    }
-
-    public void setEnvironment(Map<String, String> environment) {
-        this.environment = environment;
-    }
-
-    public ResourcesConfigProperties getResources() {
-        return resources;
-    }
-
-    public void setResources(ResourcesConfigProperties resources) {
-        this.resources = resources;
     }
 
     public String getPrincipal() {
@@ -84,19 +47,11 @@ public class MesosConfigProperties {
         this.secret = secret;
     }
 
-    public List<String> getUri() {
-        return uri;
+    public List<TaskConfigProperties> getTasks() {
+        return tasks;
     }
 
-    public void setUri(List<String> uri) {
-        this.uri = uri;
-    }
-
-    public DockerConfigProperties getDocker() {
-        return docker;
-    }
-
-    public void setDocker(DockerConfigProperties docker) {
-        this.docker = docker;
+    public void setTasks(List<TaskConfigProperties> tasks) {
+        this.tasks = tasks;
     }
 }

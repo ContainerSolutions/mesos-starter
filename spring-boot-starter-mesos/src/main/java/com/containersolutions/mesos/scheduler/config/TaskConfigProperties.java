@@ -1,0 +1,72 @@
+package com.containersolutions.mesos.scheduler.config;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class TaskConfigProperties {
+    private String name;
+    private String role = "*";
+    private String command;
+    private DockerConfigProperties docker;
+    private Map<String, String> environment = new HashMap<>();
+    private ResourcesConfigProperties resources = new ResourcesConfigProperties();
+    private List<String> uri = new ArrayList<>();
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getCommand() {
+        return command;
+    }
+
+    public void setCommand(String command) {
+        this.command = command;
+    }
+
+    public DockerConfigProperties getDocker() {
+        return docker;
+    }
+
+    public void setDocker(DockerConfigProperties docker) {
+        this.docker = docker;
+    }
+
+    public Map<String, String> getEnvironment() {
+        return environment;
+    }
+
+    public void setEnvironment(Map<String, String> environment) {
+        this.environment = environment;
+    }
+
+    public ResourcesConfigProperties getResources() {
+        return resources;
+    }
+
+    public void setResources(ResourcesConfigProperties resources) {
+        this.resources = resources;
+    }
+
+    public List<String> getUri() {
+        return uri;
+    }
+
+    public void setUri(List<String> uri) {
+        this.uri = uri;
+    }
+}
