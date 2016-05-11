@@ -38,7 +38,7 @@ public class OfferStrategyFilterTest {
 
     @Test
     public void willApproveValidOffer() throws Exception {
-        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(OfferEvaluation.accept("test requirement", taskId, offer, Collections.emptyMap(), Collections.emptyList()));
+        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(OfferEvaluation.accept("test requirement", taskId, offer, Collections.emptyMap(), Collections.emptyList(), Collections.emptyList()));
 
         final OfferEvaluation result = filter.evaluate(taskId, offer);
         assertTrue(result.isValid());
@@ -71,8 +71,8 @@ public class OfferStrategyFilterTest {
         ResourceRequirement approvingRequirement = mock(ResourceRequirement.class);
         filter.resourceRequirements.put("requirement 2", approvingRequirement);
 
-        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(OfferEvaluation.accept("requirement 1", taskId, offer, Collections.emptyMap(), Collections.emptyList()));
-        when(approvingRequirement.check("requirement 2", taskId, offer)).thenReturn(OfferEvaluation.accept("requirement 2", taskId, offer, Collections.emptyMap(), Collections.emptyList()));
+        when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(OfferEvaluation.accept("requirement 1", taskId, offer, Collections.emptyMap(), Collections.emptyList(), Collections.emptyList()));
+        when(approvingRequirement.check("requirement 2", taskId, offer)).thenReturn(OfferEvaluation.accept("requirement 2", taskId, offer, Collections.emptyMap(), Collections.emptyList(), Collections.emptyList()));
 
         assertTrue(filter.evaluate(taskId, offer).isValid());
 

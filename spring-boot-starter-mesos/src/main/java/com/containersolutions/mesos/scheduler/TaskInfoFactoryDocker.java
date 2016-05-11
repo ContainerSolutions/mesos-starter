@@ -2,6 +2,7 @@ package com.containersolutions.mesos.scheduler;
 
 import com.containersolutions.mesos.scheduler.config.MesosConfigProperties;
 import com.containersolutions.mesos.scheduler.requirements.PortMapping;
+import com.containersolutions.mesos.scheduler.requirements.VolumeMapping;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mesos.Protos;
@@ -47,9 +48,21 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
                                 .addAllPortMappings(portMappings(executionParameters.getPortMappings()))
                                 .setNetwork(Protos.ContainerInfo.DockerInfo.Network.valueOf(networkMode))
                         )
+                        .addAllVolumes(volumeMappings(executionParameters.getVolumeMappings()))
                 )
                 .setCommand(command(executionParameters.getEnvironmentVariables()))
                 .build();
+    }
+
+    private Iterable<? extends Protos.Volume> volumeMappings(List<VolumeMapping> volumeMappings) {
+        return volumeMappings.stream()
+                .map(volumeMapping -> Protos.Volume.newBuilder()
+                        .setHostPath(volumeMapping.getHostPath())
+                        .setContainerPath(volumeMapping.getContainerPath())
+                        .setMode(volumeMapping.isReadOnly() ? Protos.Volume.Mode.RO : Protos.Volume.Mode.RW)
+                        .build())
+                .peek(volume -> logger.info("Mapping host volume to container volume"))
+                .collect(Collectors.toList());
     }
 
     private Protos.CommandInfo command(Map<String, String> additionalEnvironmentVariables) {

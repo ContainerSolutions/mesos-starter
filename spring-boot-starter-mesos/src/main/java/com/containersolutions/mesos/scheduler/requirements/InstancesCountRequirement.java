@@ -24,7 +24,7 @@ public class InstancesCountRequirement implements ResourceRequirement {
         int instanceCount = this.instanceCount.getCount();
 
         if (totalCount < instanceCount) {
-            return OfferEvaluation.accept(requirement, taskId, offer, Collections.emptyMap(), Collections.emptyList());
+            return OfferEvaluation.accept(requirement, taskId, offer, Collections.emptyMap(), Collections.emptyList(), Collections.emptyList());
         }
         return OfferEvaluation.decline(requirement, taskId, offer, "tasksCount=" + totalCount + " < instanceCount=" + instanceCount);
     }

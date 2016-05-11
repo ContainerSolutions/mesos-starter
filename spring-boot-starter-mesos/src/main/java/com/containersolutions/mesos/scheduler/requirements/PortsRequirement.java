@@ -60,6 +60,7 @@ public class PortsRequirement implements ResourceRequirement {
                     offer,
                     portMappings.stream().collect(Collectors.toMap(PortMapping::envName, PortMapping::envValue)),
                     portMappings,
+                    Collections.emptyList(),
                     Protos.Resource.newBuilder()
                             .setType(Protos.Value.Type.RANGES)
                             .setName("ports")

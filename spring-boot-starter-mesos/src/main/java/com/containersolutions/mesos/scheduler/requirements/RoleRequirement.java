@@ -25,6 +25,7 @@ public class RoleRequirement implements ResourceRequirement {
                     offer,
                     Collections.emptyMap(),
                     Collections.emptyList(),
+                    Collections.emptyList(),
                     roleResources
             );
         }
