@@ -15,8 +15,10 @@ public class TaskMaterializerMinimal implements TaskMaterializer {
                         offerEvaluation.getTaskId(),
                         offerEvaluation.getOffer(),
                         offerEvaluation.getResources(),
-                        new ExecutionParameters(offerEvaluation.getEnvironmentVariables(),
-                                offerEvaluation.getPortMappings()
+                        new ExecutionParameters(
+                                offerEvaluation.getEnvironmentVariables(),
+                                offerEvaluation.getPortMappings(),
+                                offerEvaluation.getVolumeMappings()
                         )
                 )
         );

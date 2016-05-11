@@ -3,7 +3,7 @@ spring:
     name: Sample App
 
 mesos:
-  command: sleep 60
+  command: sleep 600
   resources:
     distinctSlave: true
     scale: 1
@@ -13,6 +13,9 @@ mesos:
 #      nc-port:
 #        host: 31101
 #        container: 80
+#    volumes:
+#      - hostPath: /etc
+#        containerPath: /hostetc
   docker:
 #    image: tutum/hello-world:latest
     image: alpine

@@ -1,6 +1,8 @@
 package com.containersolutions.mesos.scheduler.config;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ResourcesConfigProperties {
@@ -9,6 +11,7 @@ public class ResourcesConfigProperties {
     private double mem;
 
     private Map<String, ResourcePortConfigProperties> ports = new LinkedHashMap<>();
+    private List<ResourceVolumeConfigProperties> volumes = new ArrayList<>();
     private int count;
 
     public double getCpus() {
@@ -33,6 +36,14 @@ public class ResourcesConfigProperties {
 
     public void setPorts(Map<String, ResourcePortConfigProperties> ports) {
         this.ports = ports;
+    }
+
+    public List<ResourceVolumeConfigProperties> getVolumes() {
+        return volumes;
+    }
+
+    public void setVolumes(List<ResourceVolumeConfigProperties> volumes) {
+        this.volumes = volumes;
     }
 
     public void setCount(int count) {

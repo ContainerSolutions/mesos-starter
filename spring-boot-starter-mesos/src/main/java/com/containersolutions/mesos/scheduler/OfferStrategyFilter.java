@@ -30,6 +30,7 @@ public class OfferStrategyFilter {
                     offer,
                     offerEvaluations.stream().flatMap(offerEvaluation -> offerEvaluation.getEnvironmentVariables().entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
                     offerEvaluations.stream().flatMap(offerEvaluation -> offerEvaluation.getPortMappings().stream()).collect(Collectors.toList()),
+                    offerEvaluations.stream().flatMap(offerEvaluation -> offerEvaluation.getVolumeMappings().stream()).collect(Collectors.toList()),
                     offerEvaluations.stream().flatMap(offerEvaluation -> offerEvaluation.getResources().stream()).collect(Collectors.toList())
             );
         }

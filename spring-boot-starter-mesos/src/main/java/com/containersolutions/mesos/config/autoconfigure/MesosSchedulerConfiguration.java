@@ -56,6 +56,7 @@ public class MesosSchedulerConfiguration {
                         offer,
                         Collections.emptyMap(),
                         Collections.emptyList(),
+                        Collections.emptyList(),
                         Protos.Resource.newBuilder()
                                 .setType(Protos.Value.Type.SCALAR)
                                 .setName(name)
@@ -178,6 +179,13 @@ public class MesosSchedulerConfiguration {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public ResourceRequirement portsRequirement() {
         return new PortsRequirement();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(name = "volumesRequirements")
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public ResourceRequirement volumesRequirement() {
+        return new VolumesRequirement();
     }
 
     @Bean

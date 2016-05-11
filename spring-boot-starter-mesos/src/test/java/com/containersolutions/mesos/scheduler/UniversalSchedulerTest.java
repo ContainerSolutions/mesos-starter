@@ -64,10 +64,10 @@ public class UniversalSchedulerTest {
         Protos.TaskInfo task = TestHelper.createDummyTask("task", builder -> builder.setTaskId(Protos.TaskID.newBuilder().setValue(taskId)));
 
         when(uuidSupplier.get()).thenReturn(uuid);
-        OfferEvaluation offerEvaluation = OfferEvaluation.accept("test", taskId, offer, Collections.emptyMap(), Collections.emptyList());
+        OfferEvaluation offerEvaluation = OfferEvaluation.accept("test", taskId, offer, Collections.emptyMap(), Collections.emptyList(), Collections.emptyList());
         when(offerStrategyFilter.evaluate(taskId, offer)).thenReturn(offerEvaluation);
         when(taskMaterializer.createProposal(offerEvaluation)).thenReturn(new TaskProposal(offer, task));
-        when(taskInfoFactory.create(taskId, offer, Collections.emptyList(), new ExecutionParameters(Collections.emptyMap(), Collections.emptyList()))).thenReturn(task);
+        when(taskInfoFactory.create(taskId, offer, Collections.emptyList(), new ExecutionParameters(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList()))).thenReturn(task);
 
         scheduler.resourceOffers(schedulerDriver, Collections.singletonList(offer));
 
