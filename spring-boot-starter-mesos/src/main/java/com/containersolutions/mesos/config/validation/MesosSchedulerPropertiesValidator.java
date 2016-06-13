@@ -22,7 +22,7 @@ public class MesosSchedulerPropertiesValidator implements Validator {
             rejectIfEmptyOrWhitespace(errors, "master", "master.empty", "No Mesos Master set");
             rejectIfEmptyOrWhitespace(errors, "zookeeper.server", "zookeeper.server.empty", "");
 
-            validateResources(errors, config.getResources(), isContainerized(config));
+            validateResources(errors, config.getResources(), isContainerized(config) && config.getDocker().getNetwork().equalsIgnoreCase("bridge"));
         }
     }
 
@@ -30,7 +30,7 @@ public class MesosSchedulerPropertiesValidator implements Validator {
         return config.getDocker() != null && !isEmpty(config.getDocker().getImage());
     }
 
-    private void validateResources(Errors errors, ResourcesConfigProperties resources, boolean containerized) {
+    private void validateResources(Errors errors, ResourcesConfigProperties resources, boolean containerizedNetwork) {
         if (resources == null) {
             errors.rejectValue("resources", "resources.empty", "Resources are not set");
             return;
@@ -53,10 +53,10 @@ public class MesosSchedulerPropertiesValidator implements Validator {
                     if (isEmpty(entry.getValue().getHost())) {
                         errors.rejectValue("resources.ports", name + ".host.empty");
                     }
-                    if (containerized && entry.getValue().getContainer() < 1) {
+                    if (containerizedNetwork && entry.getValue().getContainer() < 1) {
                         errors.rejectValue("resources.ports", name + ".container.empty");
                     }
-                    if (!containerized && entry.getValue().getContainer() != 0) {
+                    if (!containerizedNetwork && entry.getValue().getContainer() != 0) {
                         errors.rejectValue("resources.ports", name + ".container.not_containerized");
                     }
                 });
