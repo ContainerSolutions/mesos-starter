@@ -5,8 +5,8 @@ spring:
 mesos:
   command: sleep 600
   resources:
-    distinctSlave: true
-    scale: 1
+#    distinctSlave: true
+    count: 1
     cpus: 0.1
     mem: 64
 #    ports:
