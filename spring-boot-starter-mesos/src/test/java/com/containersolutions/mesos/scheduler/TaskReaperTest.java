@@ -34,7 +34,7 @@ public class TaskReaperTest {
 
     @Test
     public void willNotKillTasksWhenCountIsFullfilled() throws Exception {
-        when(stateRepository.allTaskInfos()).thenReturn(tasksInfoSet("task 1", "task 2"));
+        when(stateRepository.allTaskDescriptions()).thenReturn(tasksInfoSet("task 1", "task 2"));
         when(instanceCount.getCount()).thenReturn(2);
         taskReaper.onApplicationEvent(new InstanceCountChangeEvent(1));
 
@@ -43,16 +43,17 @@ public class TaskReaperTest {
 
     @Test
     public void willKillTaskWhenScalingDown() throws Exception {
-        when(stateRepository.allTaskInfos()).thenReturn(tasksInfoSet("task 1", "task 2"));
+        when(stateRepository.allTaskDescriptions()).thenReturn(tasksInfoSet("task 1", "task 2"));
         when(instanceCount.getCount()).thenReturn(1);
         taskReaper.onApplicationEvent(new InstanceCountChangeEvent(1));
 
         verify(universalScheduler).killTask(any(Protos.TaskID.class));
     }
 
-    private static Set<Protos.TaskInfo> tasksInfoSet(String ... names) {
+    private static Set<TaskDescription> tasksInfoSet(String ... names) {
+        if (true) throw new RuntimeException("Not implemented");
         return Arrays.stream(names)
-                .map(TestHelper::createDummyTask)
+                .map(s -> new TaskDescription(null, null))
                 .collect(Collectors.toSet());
     }
 }

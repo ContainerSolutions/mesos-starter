@@ -3,6 +3,7 @@ package com.containersolutions.mesos.scheduler.requirements;
 import org.apache.mesos.Protos;
 
 @FunctionalInterface
+@Deprecated
 public interface ResourceRequirement {
     OfferEvaluation check(String requirement, String taskId, Protos.Offer offer);
 

@@ -1,6 +1,7 @@
 package com.containersolutions.mesos.scheduler.requirements;
 
 import com.containersolutions.mesos.TestHelper;
+import com.containersolutions.mesos.scheduler.TaskDescription;
 import com.containersolutions.mesos.scheduler.state.StateRepository;
 import org.apache.mesos.Protos;
 import org.junit.Test;
@@ -57,7 +58,7 @@ public class DistinctSlaveRequirementTest {
 
     @Test
     public void willRejectOfferForHostWithRunningTask() {
-        when(stateRepository.allTaskInfos()).thenReturn(Collections.singleton(createTaskInfo("slave 1", taskId)));
+        when(stateRepository.allTaskDescriptions()).thenReturn(Collections.singleton(new TaskDescription(null, null)));
 
         assertFalse(requirement.check("test requirement", taskId, createOffer("slave 1")).isValid());
     }

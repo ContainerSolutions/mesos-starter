@@ -1,5 +1,6 @@
 package com.containersolutions.mesos.scheduler.requirements;
 
+import com.containersolutions.mesos.scheduler.TaskDescription;
 import com.containersolutions.mesos.scheduler.state.StateRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +40,7 @@ public class DistinctSlaveRequirement implements ResourceRequirement {
     }
 
     private boolean slaveIsRunningTask(String slaveId) {
-        return stateRepository.allTaskInfos().stream().noneMatch(taskInfo -> taskInfo.getSlaveId().getValue().equals(slaveId)) && !tentativeAccept.containsKey(slaveId);
+        return stateRepository.allTaskDescriptions().stream().map(TaskDescription::getTaskInfo).noneMatch(taskInfo -> taskInfo.getSlaveId().getValue().equals(slaveId)) && !tentativeAccept.containsKey(slaveId);
     }
 
     private void cleanUpTentatives(Instant now) {

@@ -1,5 +1,6 @@
 package com.containersolutions.mesos.scheduler.state;
 
+import com.containersolutions.mesos.scheduler.TaskDescription;
 import com.containersolutions.mesos.scheduler.events.FrameworkRegistreredEvent;
 import com.containersolutions.mesos.scheduler.events.StatusUpdateEvent;
 import org.apache.commons.logging.Log;
@@ -70,29 +71,30 @@ public class StateRepositoryZookeeper implements StateRepository {
     public void onStatusUpdate(StatusUpdateEvent event) {
         if (isTerminalTaskState(event.getTaskStatus().getState())) {
             set("tasks",
-                    allTaskInfos().stream()
-                            .filter(task -> !task.getTaskId().equals(event.getTaskStatus().getTaskId()))
+                    allTaskDescriptions().stream()
+                            .filter(task -> !task.getTaskId().equals(event.getTaskStatus().getTaskId().getValue()))
                             .collect(Collectors.toSet())
             );
         }
     }
 
     @Override
-    public void store(Protos.TaskInfo taskInfo) {
-        logger.debug("Persisting taskInfo for taskId=" + taskInfo.getTaskId().getValue());
-        Set<Protos.TaskInfo> taskInfos = allTaskInfos();
-        taskInfos.add(taskInfo);
+    public void store(TaskDescription taskDescription) {
+//        logger.debug("Persisting taskInfo for taskId=" + taskInfo.getTaskId().getValue());
+        Set<TaskDescription> taskInfos = allTaskDescriptions();
+        taskInfos.add(taskDescription);
         set("tasks", taskInfos);
+
     }
 
     @Override
-    public Set<Protos.TaskInfo> allTaskInfos() {
+    public Set<TaskDescription> allTaskDescriptions() {
         try {
             byte[] existingNodes = zkState.fetch("tasks").get().value();
             if (existingNodes.length == 0) {
                 return new HashSet<>();
             }
-            return (Set<Protos.TaskInfo>) SerializationUtils.deserialize(existingNodes);
+            return (Set<TaskDescription>) SerializationUtils.deserialize(existingNodes);
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("Failed to get state from Zookeeper", e);
         }

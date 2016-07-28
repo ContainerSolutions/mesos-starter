@@ -2,9 +2,7 @@ package com.containersolutions.mesos.scheduler;
 
 import com.containersolutions.mesos.scheduler.config.MesosConfigProperties;
 import com.containersolutions.mesos.scheduler.events.*;
-import com.containersolutions.mesos.scheduler.requirements.OfferEvaluation;
 import com.containersolutions.mesos.scheduler.state.StateRepository;
-import com.containersolutions.mesos.utils.StreamHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mesos.MesosSchedulerDriver;
@@ -20,11 +18,12 @@ import org.springframework.context.ApplicationListener;
 import javax.annotation.PreDestroy;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class UniversalScheduler implements Scheduler, ApplicationListener<ApplicationReadyEvent> {
     protected final Log logger = LogFactory.getLog(getClass());
@@ -39,25 +38,28 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
     MesosConfigProperties mesosConfig;
 
     @Autowired
-    OfferStrategyFilter offerStrategyFilter;
-
-    @Autowired
     ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
-    Supplier<UUID> uuidSupplier;
-
-    @Autowired
     StateRepository stateRepository;
-
-    @Autowired
-    TaskMaterializer taskMaterializer;
 
     @Autowired
     FrameworkInfoFactory frameworkInfoFactory;
 
     @Autowired
     CredentialFactory credentialFactory;
+
+    @Autowired
+    VirtualOfferFactory offerSlicer;
+
+    @Autowired
+    TaskDescriptionFactory taskDescriptionFactory;
+
+    @Autowired(required = false)
+    List<OfferRequirement> offerRequirements = Collections.emptyList();
+
+    @Autowired(required = false)
+    List<VirtualOfferRequirement> virtualOfferRequirements = Collections.emptyList();
 
     protected AtomicReference<Protos.FrameworkID> frameworkID = new AtomicReference<>();
 
@@ -111,23 +113,31 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
 
     @Override
     public void resourceOffers(SchedulerDriver schedulerDriver, List<Protos.Offer> offers) {
-        AtomicInteger acceptedOffers = new AtomicInteger(0);
-        AtomicInteger rejectedOffers = new AtomicInteger(0);
+        Map<Protos.OfferID, List<TaskDescription>> taskDescriptions = offers.stream()
+                .peek(offer -> logger.debug("Evaluating offerId=" + offer.getId().getValue() + " for slaveId=" + offer.getSlaveId().getValue()))
+                .filter(offer -> offerRequirements.stream().allMatch(offerRequirement -> offerRequirement.check(offer)))
+                .flatMap(offerSlicer::slice)
+                //TODO: Order according to distribution strategy
+                .filter(virtualOffer -> virtualOfferRequirements.stream().allMatch(virtualOfferRequirement -> virtualOfferRequirement.check(virtualOffer)))
+                .map(taskDescriptionFactory::create)
+                .peek(stateRepository::store)
+                .collect(Collectors.groupingBy(
+                        taskDescription -> taskDescription.getVirtualOffer().getParent().getId()
+                ));
+
         offers.stream()
-                .peek(offer -> logger.debug("Received offerId=" + offer.getId().getValue() + " for slaveId=" + offer.getSlaveId().getValue()))
-                .map(offer -> offerStrategyFilter.evaluate(uuidSupplier.get().toString(), offer))
-                .peek(offerEvaluation -> (offerEvaluation.isValid() ? acceptedOffers : rejectedOffers).incrementAndGet())
-                .filter(StreamHelper.onNegative(
-                        OfferEvaluation::isValid,
-                        offerEvaluation -> schedulerDriver.declineOffer(offerEvaluation.getOffer().getId())))
-                .peek(offerEvaluation -> logger.info("Accepting offer offerId=" + offerEvaluation.getOffer().getId().getValue() + " on slaveId=" + offerEvaluation.getOffer().getSlaveId().getValue()))
-                .map(taskMaterializer::createProposal)
-//                .peek(taskProposal -> logger.debug("Launching task " + taskProposal.getTaskInfo().toString()))
-                .forEach(taskProposal -> {
-                    schedulerDriver.launchTasks(Collections.singleton(taskProposal.getOfferId()), Collections.singleton(taskProposal.getTaskInfo()));
-                    stateRepository.store(taskProposal.taskInfo);
-                });
-        logger.info("Finished evaluating " + offers.size() + " offers. Accepted " + acceptedOffers.get() + " offers and rejected " + rejectedOffers.get());
+                .map(Protos.Offer::getId)
+                .filter(offerId -> !taskDescriptions.containsKey(offerId))
+                .peek(offerID -> logger.debug("Declining offerID=" + offerID.getValue()))
+                .forEach(schedulerDriver::declineOffer);
+
+        taskDescriptions.entrySet().stream()
+                .forEach(offerTasks -> schedulerDriver.launchTasks(
+                        Collections.singleton(offerTasks.getKey()),
+                        offerTasks.getValue().stream().map(TaskDescription::getTaskInfo).collect(Collectors.toList())
+                ));
+
+//        logger.info("Finished evaluating " + offers.size() + " offers. Accepted " + acceptedOffers.get() + " offers and rejected " + rejectedOffers.get());
     }
 
     @Override

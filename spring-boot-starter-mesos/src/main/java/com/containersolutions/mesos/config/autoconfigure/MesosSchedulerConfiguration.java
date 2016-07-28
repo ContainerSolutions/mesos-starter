@@ -189,11 +189,6 @@ public class MesosSchedulerConfiguration {
     }
 
     @Bean
-    public TaskMaterializer taskMaterializer() {
-        return new TaskMaterializerMinimal();
-    }
-
-    @Bean
     @ConditionalOnMissingBean
     public FrameworkInfoFactory frameworkInfoFactory() {
         return new FrameworkInfoFactory();

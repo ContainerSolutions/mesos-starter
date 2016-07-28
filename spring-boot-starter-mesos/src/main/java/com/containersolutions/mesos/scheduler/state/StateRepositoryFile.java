@@ -1,5 +1,6 @@
 package com.containersolutions.mesos.scheduler.state;
 
+import com.containersolutions.mesos.scheduler.TaskDescription;
 import com.containersolutions.mesos.scheduler.events.FrameworkRegistreredEvent;
 import com.containersolutions.mesos.utils.MesosHelper;
 import com.containersolutions.mesos.scheduler.events.StatusUpdateEvent;
@@ -55,10 +56,10 @@ public class StateRepositoryFile implements StateRepository {
     @EventListener
     public void onStatusUpdate(StatusUpdateEvent event) {
         if (MesosHelper.isTerminalTaskState(event.getTaskStatus().getState())) {
-            final Set<Protos.TaskInfo> taskInfos = allTaskInfos();
-            final Optional<Protos.TaskInfo> taskInfo = taskInfos.stream().filter(task -> task.getTaskId().equals(event.getTaskStatus().getTaskId())).findFirst();
-            taskInfo.ifPresent(taskInfos::remove);
-            save(taskInfos);
+            final Set<TaskDescription> taskDescriptions = allTaskDescriptions();
+            final Optional<TaskDescription> taskInfo = taskDescriptions.stream().filter(task -> task.getTaskId().equals(event.getTaskStatus().getTaskId().getValue())).findFirst();
+            taskInfo.ifPresent(taskDescriptions::remove);
+            save(taskDescriptions);
         }
     }
 
@@ -67,7 +68,7 @@ public class StateRepositoryFile implements StateRepository {
         frameworkStateHome().delete();
     }
 
-    private void save(Set<Protos.TaskInfo> taskIDs) {
+    private void save(Set<TaskDescription> taskIDs) {
         try {
             if (!stateHome.exists()) {
                 logger.info("Creating stateHome directory: " + stateHome.getAbsolutePath());
@@ -81,14 +82,14 @@ public class StateRepositoryFile implements StateRepository {
     }
 
     @Override
-    public void store(Protos.TaskInfo taskInfo) {
-        final Set<Protos.TaskInfo> taskInfos = allTaskInfos();
-        taskInfos.add(taskInfo);
-        save(taskInfos);
+    public void store(TaskDescription taskDescription) {
+        final Set<TaskDescription> taskDescriptions = allTaskDescriptions();
+        taskDescriptions.add(taskDescription);
+        save(taskDescriptions);
     }
 
     @Override
-    public Set<Protos.TaskInfo> allTaskInfos() {
+    public Set<TaskDescription> allTaskDescriptions() {
         if (frameworkId.get() == null) {
             logger.warn("Attempted to fetch TaskInfo list before framework has been registered");
             return new HashSet<>();
@@ -96,7 +97,7 @@ public class StateRepositoryFile implements StateRepository {
 
         final File stateFile = tasksFile();
         try {
-            return (Set<Protos.TaskInfo>) SerializationUtils.deserialize(FileCopyUtils.copyToByteArray(stateFile));
+            return (Set<TaskDescription>) SerializationUtils.deserialize(FileCopyUtils.copyToByteArray(stateFile));
         } catch (Exception e) {
 //            logger.error("Failed to read file: " + stateFile.getAbsolutePath(), e);
             return new HashSet<>();

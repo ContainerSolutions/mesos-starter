@@ -30,6 +30,6 @@ public class InstancesCountRequirement implements ResourceRequirement {
     }
 
     private int tasksCount() {
-        return stateRepository.allTaskInfos().size();
+        return stateRepository.allTaskDescriptions().size();
     }
 }

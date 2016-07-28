@@ -25,14 +25,15 @@ public class TaskReaper implements ApplicationListener<InstanceCountChangeEvent>
     @Override
     public void onApplicationEvent(InstanceCountChangeEvent event) {
         int expectedInstances = instanceCount.getCount();
-        Set<Protos.TaskInfo> taskInfos = stateRepository.allTaskInfos();
+        Set<TaskDescription> taskInfos = stateRepository.allTaskDescriptions();
         int runningInstances = taskInfos.size();
 
         int rest = runningInstances - expectedInstances;
         taskInfos.stream()
                 .limit(Math.max(0, rest))
-                .map(Protos.TaskInfo::getTaskId)
-                .peek(taskId -> logger.info("Killing taskId=" + taskId.getValue()))
+                .map(TaskDescription::getTaskId)
+                .peek(taskId -> logger.info("Killing taskId=" + taskId))
+                .map(id -> Protos.TaskID.newBuilder().setValue(id).build())
                 .forEach(universalScheduler::killTask);
 
     }
