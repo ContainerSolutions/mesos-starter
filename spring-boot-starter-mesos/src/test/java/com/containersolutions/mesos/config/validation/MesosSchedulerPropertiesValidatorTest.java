@@ -77,22 +77,6 @@ public class MesosSchedulerPropertiesValidatorTest {
     }
 
     @Test
-    public void willRequireContainerPortWhenContainerized() throws Exception {
-        config.setDocker(new DockerConfigProperties() {{
-            setImage("test");
-        }});
-        config.setResources(new ResourcesConfigProperties() {{
-            setPorts(Collections.singletonMap("test", new ResourcePortConfigProperties() {{
-                setHost("ANY");
-            }}));
-        }});
-
-        validator.validate(config, errors);
-
-        assertEquals("resources.ports.test.container.empty", errors.getFieldError("resources.ports").getCode());
-    }
-
-    @Test
     public void willRejectContainerPortWhenNotContainerized() throws Exception {
         config.setResources(new ResourcesConfigProperties() {{
             setPorts(Collections.singletonMap("test", new ResourcePortConfigProperties() {{
