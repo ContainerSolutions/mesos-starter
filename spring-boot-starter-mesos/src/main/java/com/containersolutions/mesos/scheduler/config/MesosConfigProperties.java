@@ -19,6 +19,7 @@ public class MesosConfigProperties {
     private String principal;
     private String secret;
     private List<String> uri = new ArrayList<>();
+    private String webuiUrl;
 
     public String getMaster() {
         return master;
@@ -98,5 +99,13 @@ public class MesosConfigProperties {
 
     public void setDocker(DockerConfigProperties docker) {
         this.docker = docker;
+    }
+
+    public String getWebuiUrl() {
+        return webuiUrl;
+    }
+
+    public void setWebuiUrl(String webuiUrl) {
+        this.webuiUrl = webuiUrl;
     }
 }

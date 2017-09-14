@@ -8,6 +8,8 @@ import org.apache.mesos.Protos;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Optional;
+
 /**
  * Creates framework info
  */
@@ -39,6 +41,7 @@ public class FrameworkInfoFactory {
             logger.debug("Adding framework principal: " + credential.getPrincipal());
             frameworkBuilder.setPrincipal(credential.getPrincipal());
         }
+        Optional.ofNullable(mesosConfig.getWebuiUrl()).ifPresent(frameworkBuilder::setWebuiUrl);
         return frameworkBuilder;
     }
 }
