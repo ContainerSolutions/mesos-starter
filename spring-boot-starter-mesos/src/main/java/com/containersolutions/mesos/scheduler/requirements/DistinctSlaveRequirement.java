@@ -1,16 +1,20 @@
 package com.containersolutions.mesos.scheduler.requirements;
 
+import com.containersolutions.mesos.scheduler.events.StatusUpdateEvent;
 import com.containersolutions.mesos.scheduler.state.StateRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mesos.Protos;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.containersolutions.mesos.utils.MesosHelper.isTerminalTaskState;
 
 public class DistinctSlaveRequirement implements ResourceRequirement {
     protected final Log logger = LogFactory.getLog(getClass());
@@ -48,6 +52,15 @@ public class DistinctSlaveRequirement implements ResourceRequirement {
                 .map(Map.Entry::getKey)
                 .peek(key -> logger.debug("removing key = " + key))
                 .forEach(tentativeAccept::remove);
+    }
+
+    @EventListener
+    public void onStatusUpdate(StatusUpdateEvent event) {
+        if (isTerminalTaskState(event.getTaskStatus().getState())) {
+            if (tentativeAccept.remove(event.getTaskStatus().getSlaveId().getValue()) != null && logger.isDebugEnabled()) {
+                logger.debug("Removed tentative accept for SlaveId=" + event.getTaskStatus().getSlaveId().getValue());
+            }
+        }
     }
 
 }
