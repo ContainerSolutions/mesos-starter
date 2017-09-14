@@ -173,4 +173,8 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
     public void killTask(Protos.TaskID taskId) {
         driver.get().killTask(taskId);
     }
+
+    public void sendFrameworkMessage(String executorId, String slaveId, byte[] data) {
+        driver.get().sendFrameworkMessage(Protos.ExecutorID.newBuilder().setValue(executorId).build(), Protos.SlaveID.newBuilder().setValue(slaveId).build(), data);
+    }
 }
