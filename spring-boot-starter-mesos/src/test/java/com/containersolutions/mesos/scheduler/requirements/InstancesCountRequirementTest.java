@@ -12,18 +12,16 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstancesCountRequirementTest {
-    @Mock
-    StateRepository stateRepository;
+    private StateRepository stateRepository = mock(StateRepository.class);
 
-    @Mock
-    InstanceCount instanceCount;
+    private InstanceCount instanceCount = mock(InstanceCount.class);
 
-    @InjectMocks
-    InstancesCountRequirement requirement = new InstancesCountRequirement();
+    private InstancesCountRequirement requirement = new InstancesCountRequirement(stateRepository, instanceCount);
 
     @Test
     public void willAcceptOfferWhenCountIsNotReached() throws Exception {

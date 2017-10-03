@@ -2,14 +2,16 @@ package com.containersolutions.mesos.scheduler.requirements;
 
 import com.containersolutions.mesos.scheduler.config.MesosConfigProperties;
 import org.apache.mesos.Protos;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
 import java.util.stream.Collectors;
 
 public class VolumesRequirement implements ResourceRequirement {
-    @Autowired
-    MesosConfigProperties mesosConfig;
+    private final MesosConfigProperties mesosConfig;
+
+    public VolumesRequirement(MesosConfigProperties mesosConfig) {
+        this.mesosConfig = mesosConfig;
+    }
 
     @Override
     public OfferEvaluation check(String requirement, String taskId, Protos.Offer offer) {

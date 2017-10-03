@@ -13,14 +13,15 @@ import java.util.Set;
 public class TaskReaper implements ApplicationListener<InstanceCountChangeEvent> {
     private final Log logger = LogFactory.getLog(getClass());
 
-    @Autowired
-    StateRepository stateRepository;
+    private final StateRepository stateRepository;
+    private final InstanceCount instanceCount;
+    private final UniversalScheduler universalScheduler;
 
-    @Autowired
-    InstanceCount instanceCount;
-
-    @Autowired
-    UniversalScheduler universalScheduler;
+    public TaskReaper(StateRepository stateRepository, InstanceCount instanceCount, UniversalScheduler universalScheduler) {
+        this.stateRepository = stateRepository;
+        this.instanceCount = instanceCount;
+        this.universalScheduler = universalScheduler;
+    }
 
     @Override
     public void onApplicationEvent(InstanceCountChangeEvent event) {

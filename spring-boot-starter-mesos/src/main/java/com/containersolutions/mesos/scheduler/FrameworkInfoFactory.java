@@ -5,9 +5,9 @@ import com.containersolutions.mesos.scheduler.state.StateRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mesos.Protos;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -19,20 +19,22 @@ public class FrameworkInfoFactory {
     @Value("${spring.application.name}")
     protected String applicationName;
 
-    @Autowired
-    MesosConfigProperties mesosConfig;
+    private final MesosConfigProperties mesosConfig;
+    private final StateRepository stateRepository;
+    private final CredentialFactory credentialFactory;
 
-    @Autowired
-    StateRepository stateRepository;
-
-    @Autowired
-    CredentialFactory credentialFactory;
+    public FrameworkInfoFactory(MesosConfigProperties mesosConfig, StateRepository stateRepository, CredentialFactory credentialFactory) {
+        this.mesosConfig = mesosConfig;
+        this.stateRepository = stateRepository;
+        this.credentialFactory = credentialFactory;
+    }
 
     public Protos.FrameworkInfo.Builder create() {
         Protos.FrameworkInfo.Builder frameworkBuilder = Protos.FrameworkInfo.newBuilder()
                 .setName(applicationName)
                 .setUser("root")
-                .setRole(mesosConfig.getRole())
+                .addRoles(mesosConfig.getRole())
+                .addCapabilities(Protos.FrameworkInfo.Capability.newBuilder().setType(Protos.FrameworkInfo.Capability.Type.MULTI_ROLE).build())
                 .setCheckpoint(true)
                 .setFailoverTimeout(60.0)
                 .setId(stateRepository.getFrameworkID().orElseGet(() -> Protos.FrameworkID.newBuilder().setValue("").build()));

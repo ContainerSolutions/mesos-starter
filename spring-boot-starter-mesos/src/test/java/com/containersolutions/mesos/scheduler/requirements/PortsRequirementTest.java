@@ -17,13 +17,13 @@ import static org.junit.Assert.assertTrue;
 @RunWith(MockitoJUnitRunner.class)
 public class PortsRequirementTest {
 
-    PortsRequirement requirement = new PortsRequirement();
+    private MesosConfigProperties mesosConfig = new MesosConfigProperties();
 
-    MesosConfigProperties mesosConfig = new MesosConfigProperties();
+    private PortsRequirement requirement = new PortsRequirement(mesosConfig);
+
 
     @Before
     public void setUp() throws Exception {
-        requirement.mesosConfig = mesosConfig;
         mesosConfig.setResources(new ResourcesConfigProperties());
     }
 

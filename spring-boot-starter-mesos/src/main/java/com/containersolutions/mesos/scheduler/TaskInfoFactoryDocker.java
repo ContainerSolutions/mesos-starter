@@ -27,11 +27,14 @@ public class TaskInfoFactoryDocker implements TaskInfoFactory {
     @Value("${mesos.docker.network:BRIDGE}")
     protected String networkMode; // May be BRIDGE or HOST
 
-    @Autowired
-    MesosConfigProperties mesosConfig;
+    private final MesosConfigProperties mesosConfig;
 
-    @Autowired
-    MesosProtoFactory<Protos.CommandInfo, Map<String, String>> commandInfoMesosProtoFactory;
+    private final MesosProtoFactory<Protos.CommandInfo, Map<String, String>> commandInfoMesosProtoFactory;
+
+    public TaskInfoFactoryDocker(MesosConfigProperties mesosConfig, MesosProtoFactory<Protos.CommandInfo, Map<String, String>> commandInfoMesosProtoFactory) {
+        this.mesosConfig = mesosConfig;
+        this.commandInfoMesosProtoFactory = commandInfoMesosProtoFactory;
+    }
 
     @Override
     public Protos.TaskInfo create(String taskId, Protos.Offer offer, List<Protos.Resource> resources, ExecutionParameters executionParameters) {

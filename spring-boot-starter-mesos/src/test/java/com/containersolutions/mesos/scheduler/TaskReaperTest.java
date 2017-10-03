@@ -14,23 +14,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TaskReaperTest {
-    @Mock
-    InstanceCount instanceCount;
+    private InstanceCount instanceCount = mock(InstanceCount.class);
 
-    @Mock
-    StateRepository stateRepository;
+    private StateRepository stateRepository = mock(StateRepository.class);
 
-    @Mock
-    UniversalScheduler universalScheduler;
+    private UniversalScheduler universalScheduler = mock(UniversalScheduler.class);
 
-    @InjectMocks
-    TaskReaper taskReaper = new TaskReaper();
+    private TaskReaper taskReaper = new TaskReaper(stateRepository, instanceCount, universalScheduler);
 
     @Test
     public void willNotKillTasksWhenCountIsFullfilled() throws Exception {

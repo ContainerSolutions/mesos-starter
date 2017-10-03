@@ -26,15 +26,18 @@ import static com.containersolutions.mesos.utils.MesosHelper.isTerminalTaskState
 
 public class StateRepositoryZookeeper implements StateRepository {
     protected final Log logger = LogFactory.getLog(getClass());
-    AtomicReference<Protos.FrameworkID> frameworkId = new AtomicReference<>();
+    private final AtomicReference<Protos.FrameworkID> frameworkId = new AtomicReference<>();
 
-    State zkState;
+    private State zkState;
 
-    @Autowired
-    Environment environment;
+    private final Environment environment;
 
     @Value("${mesos.framework.name:default}")
     String frameworkName;
+
+    public StateRepositoryZookeeper(Environment environment) {
+        this.environment = environment;
+    }
 
     @Override
     public Optional<Protos.FrameworkID> getFrameworkID() {

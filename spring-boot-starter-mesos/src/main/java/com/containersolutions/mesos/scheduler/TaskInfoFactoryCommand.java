@@ -17,11 +17,14 @@ public class TaskInfoFactoryCommand implements TaskInfoFactory {
     @Value("${spring.application.name}")
     protected String applicationName;
 
-    @Autowired
-    MesosProtoFactory<Protos.CommandInfo, Map<String, String>> commandInfoMesosProtoFactory;
+    private final MesosProtoFactory<Protos.CommandInfo, Map<String, String>> commandInfoMesosProtoFactory;
 
-    @Autowired
-    Supplier<UUID> uuidSupplier;
+    private final Supplier<UUID> uuidSupplier;
+
+    public TaskInfoFactoryCommand(MesosProtoFactory<Protos.CommandInfo, Map<String, String>> commandInfoMesosProtoFactory, Supplier<UUID> uuidSupplier) {
+        this.commandInfoMesosProtoFactory = commandInfoMesosProtoFactory;
+        this.uuidSupplier = uuidSupplier;
+    }
 
     @Override
     public Protos.TaskInfo create(String taskId, Protos.Offer offer, List<Protos.Resource> resources, ExecutionParameters executionParameters) {

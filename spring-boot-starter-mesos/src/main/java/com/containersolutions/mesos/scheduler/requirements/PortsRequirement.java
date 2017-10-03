@@ -3,7 +3,6 @@ package com.containersolutions.mesos.scheduler.requirements;
 import com.containersolutions.mesos.scheduler.config.MesosConfigProperties;
 import com.containersolutions.mesos.scheduler.config.ResourcePortConfigProperties;
 import org.apache.mesos.Protos;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.NumberUtils;
 
 import java.util.*;
@@ -12,8 +11,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class PortsRequirement implements ResourceRequirement {
-    @Autowired
-    MesosConfigProperties mesosConfig;
+    private final MesosConfigProperties mesosConfig;
+
+    public PortsRequirement(MesosConfigProperties mesosConfig) {
+        this.mesosConfig = mesosConfig;
+    }
 
     @Override
     public OfferEvaluation check(String requirement, String taskId, Protos.Offer offer) {
@@ -49,7 +51,7 @@ public class PortsRequirement implements ResourceRequirement {
                     }
                     return null;
                 })
-                .filter(portMap -> portMap != null)
+                .filter(Objects::nonNull)
                 .limit(ports.size())
                 .collect(Collectors.toList());
 

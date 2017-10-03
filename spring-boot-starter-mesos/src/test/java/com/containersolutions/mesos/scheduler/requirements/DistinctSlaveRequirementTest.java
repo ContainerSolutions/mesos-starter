@@ -15,19 +15,17 @@ import java.util.Collections;
 
 import static com.containersolutions.mesos.TestHelper.createDummyOffer;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DistinctSlaveRequirementTest {
-    @Mock
-    Clock clock;
+    private Clock clock = mock(Clock.class);
 
-    @Mock
-    StateRepository stateRepository;
+    private StateRepository stateRepository = mock(StateRepository.class);
 
-    @InjectMocks
-    DistinctSlaveRequirement requirement = new DistinctSlaveRequirement();
+    private DistinctSlaveRequirement requirement = new DistinctSlaveRequirement(clock, stateRepository);
 
     private String taskId = "taskId";
     private Instant now = Instant.now();

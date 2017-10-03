@@ -14,8 +14,11 @@ import java.util.stream.Collectors;
 public class OfferStrategyFilter {
     protected final Log logger = LogFactory.getLog(getClass());
 
-    @Autowired
-    Map<String, ResourceRequirement> resourceRequirements;
+    private final Map<String, ResourceRequirement> resourceRequirements;
+
+    public OfferStrategyFilter(Map<String, ResourceRequirement> resourceRequirements) {
+        this.resourceRequirements = resourceRequirements;
+    }
 
     public OfferEvaluation evaluate(String taskId, Protos.Offer offer) {
         List<OfferEvaluation> offerEvaluations = resourceRequirements.entrySet().stream()

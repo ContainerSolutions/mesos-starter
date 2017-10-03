@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -22,18 +23,19 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OfferStrategyFilterTest {
-    Protos.Offer offer = TestHelper.createDummyOffer();
+    private Protos.Offer offer = TestHelper.createDummyOffer();
 
     @Mock
-    ResourceRequirement resourceRequirement;
+    private ResourceRequirement resourceRequirement;
 
-    OfferStrategyFilter filter = new OfferStrategyFilter();
+    private final HashMap<String, ResourceRequirement> resourceRequirements = new HashMap<>();
+
+    private OfferStrategyFilter filter = new OfferStrategyFilter(resourceRequirements);
     private String taskId = "taskId";
 
     @Before
     public void setUp() throws Exception {
-        filter.resourceRequirements = new HashMap<>();
-        filter.resourceRequirements.put("requirement 1", resourceRequirement);
+        resourceRequirements.put("requirement 1", resourceRequirement);
     }
 
     @Test
@@ -56,7 +58,7 @@ public class OfferStrategyFilterTest {
     @Test @Ignore("A nice to have that's not ready yet")
     public void willNotCheckSecondRequirementIfFirstRejects() throws Exception {
         ResourceRequirement decliningRequirement = mock(ResourceRequirement.class);
-        filter.resourceRequirements.put("requirement 2", decliningRequirement);
+        resourceRequirements.put("requirement 2", decliningRequirement);
 
         when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(OfferEvaluation.decline("requirement 1", taskId, offer, null));
         when(decliningRequirement.check("requirement 2", taskId, offer)).thenReturn(OfferEvaluation.decline("requirement 2", taskId, offer, null));
@@ -69,7 +71,7 @@ public class OfferStrategyFilterTest {
     @Test
     public void willCheckSecondRequirementIfFirstApproves() throws Exception {
         ResourceRequirement approvingRequirement = mock(ResourceRequirement.class);
-        filter.resourceRequirements.put("requirement 2", approvingRequirement);
+        resourceRequirements.put("requirement 2", approvingRequirement);
 
         when(resourceRequirement.check("requirement 1", taskId, offer)).thenReturn(OfferEvaluation.accept("requirement 1", taskId, offer, Collections.emptyMap(), Collections.emptyList(), Collections.emptyList()));
         when(approvingRequirement.check("requirement 2", taskId, offer)).thenReturn(OfferEvaluation.accept("requirement 2", taskId, offer, Collections.emptyMap(), Collections.emptyList(), Collections.emptyList()));

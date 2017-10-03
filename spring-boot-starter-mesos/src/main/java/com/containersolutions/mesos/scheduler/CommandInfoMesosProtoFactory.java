@@ -10,8 +10,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CommandInfoMesosProtoFactory implements MesosProtoFactory<Protos.CommandInfo,Map<String, String>> {
-    @Autowired
-    MesosConfigProperties mesosConfig;
+    private final MesosConfigProperties mesosConfig;
+
+    public CommandInfoMesosProtoFactory(MesosConfigProperties mesosConfig) {
+        this.mesosConfig = mesosConfig;
+    }
 
     @Override
     public Protos.CommandInfo create(Map<String, String> additionalEnvironmentVariables) {
@@ -25,6 +28,7 @@ public class CommandInfoMesosProtoFactory implements MesosProtoFactory<Protos.Co
         environmentVariables.putAll(additionalEnvironmentVariables);
         environmentVariables.putAll(mesosConfig.getEnvironment());
 
+        //todo: migrate to foreach
         environmentVariables.entrySet().stream()
                 .map(kv -> Protos.Environment.Variable.newBuilder().setName(kv.getKey()).setValue(kv.getValue()).build())
                 .collect(Collectors.collectingAndThen(

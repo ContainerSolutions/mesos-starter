@@ -21,29 +21,22 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UniversalSchedulerTest {
-    @Mock
-    OfferStrategyFilter offerStrategyFilter;
+    private OfferStrategyFilter offerStrategyFilter = mock(OfferStrategyFilter.class);
 
-    @Mock
-    TaskInfoFactory taskInfoFactory;
+    private TaskInfoFactory taskInfoFactory = mock(TaskInfoFactory.class);
 
-    @InjectMocks
-    UniversalScheduler scheduler = new UniversalScheduler();
+    private SchedulerDriver schedulerDriver = mock(SchedulerDriver.class);
 
-    @Mock
-    SchedulerDriver schedulerDriver;
+    private Supplier<UUID> uuidSupplier = mock(Supplier.class);
 
-    @Mock
-    Supplier<UUID> uuidSupplier;
+    private StateRepository stateRepository = mock(StateRepository.class);
 
-    @Mock
-    StateRepository stateRepository;
+    private TaskMaterializer taskMaterializer = mock(TaskMaterializer.class);
 
-    @Mock
-    TaskMaterializer taskMaterializer;
+    private UniversalScheduler scheduler = new UniversalScheduler(null, offerStrategyFilter, null, uuidSupplier, stateRepository, taskMaterializer, null, null);
 
-    UUID uuid = UUID.randomUUID();
-    String taskId = uuid.toString();
+    private UUID uuid = UUID.randomUUID();
+    private String taskId = uuid.toString();
 
     @Test
     public void willDeclineInvalidOffers() throws Exception {

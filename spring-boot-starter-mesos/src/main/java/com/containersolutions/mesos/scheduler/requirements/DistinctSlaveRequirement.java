@@ -19,14 +19,16 @@ import static com.containersolutions.mesos.utils.MesosHelper.isTerminalTaskState
 public class DistinctSlaveRequirement implements ResourceRequirement {
     protected final Log logger = LogFactory.getLog(getClass());
 
-    @Autowired
-    Clock clock;
+    private final Clock clock;
 
-    @Autowired
-    StateRepository stateRepository;
+    private final StateRepository stateRepository;
 
-    Map<String, Instant> tentativeAccept = new ConcurrentHashMap<>();
+    private Map<String, Instant> tentativeAccept = new ConcurrentHashMap<>();
 
+    public DistinctSlaveRequirement(Clock clock, StateRepository stateRepository) {
+        this.clock = clock;
+        this.stateRepository = stateRepository;
+    }
 
     @Override
     public OfferEvaluation check(String requirement, String taskId, Protos.Offer offer) {

@@ -12,11 +12,14 @@ import java.util.Collections;
 public class InstancesCountRequirement implements ResourceRequirement {
     private final Log logger = LogFactory.getLog(getClass());
 
-    @Autowired
-    StateRepository stateRepository;
+    private final StateRepository stateRepository;
 
-    @Autowired
-    InstanceCount instanceCount;
+    private final InstanceCount instanceCount;
+
+    public InstancesCountRequirement(StateRepository stateRepository, InstanceCount instanceCount) {
+        this.stateRepository = stateRepository;
+        this.instanceCount = instanceCount;
+    }
 
     @Override
     public OfferEvaluation check(String requirement, String taskId, Protos.Offer offer) {

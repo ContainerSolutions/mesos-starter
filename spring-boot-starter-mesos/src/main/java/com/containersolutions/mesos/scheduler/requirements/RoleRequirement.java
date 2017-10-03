@@ -9,8 +9,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RoleRequirement implements ResourceRequirement {
-    @Autowired
-    MesosConfigProperties mesosConfig;
+    private final MesosConfigProperties mesosConfig;
+
+    public RoleRequirement(MesosConfigProperties mesosConfig) {
+        this.mesosConfig = mesosConfig;
+    }
 
     @Override
     public OfferEvaluation check(String requirement, String taskId, Protos.Offer offer) {

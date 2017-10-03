@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import static java.util.Arrays.asList;
+
 public class UniversalScheduler implements Scheduler, ApplicationListener<ApplicationReadyEvent> {
     protected final Log logger = LogFactory.getLog(getClass());
 
@@ -35,33 +37,36 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
     @Value("${spring.application.name}")
     protected String applicationName;
 
-    @Autowired
-    MesosConfigProperties mesosConfig;
+    private final MesosConfigProperties mesosConfig;
 
-    @Autowired
-    OfferStrategyFilter offerStrategyFilter;
+    private final OfferStrategyFilter offerStrategyFilter;
 
-    @Autowired
-    ApplicationEventPublisher applicationEventPublisher;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    @Autowired
-    Supplier<UUID> uuidSupplier;
+    private final Supplier<UUID> uuidSupplier;
 
-    @Autowired
-    StateRepository stateRepository;
+    private final StateRepository stateRepository;
 
-    @Autowired
-    TaskMaterializer taskMaterializer;
+    private final TaskMaterializer taskMaterializer;
 
-    @Autowired
-    FrameworkInfoFactory frameworkInfoFactory;
+    private final FrameworkInfoFactory frameworkInfoFactory;
 
-    @Autowired
-    CredentialFactory credentialFactory;
+    private final CredentialFactory credentialFactory;
 
     protected AtomicReference<Protos.FrameworkID> frameworkID = new AtomicReference<>();
 
     protected AtomicReference<SchedulerDriver> driver = new AtomicReference<>();
+
+    public UniversalScheduler(MesosConfigProperties mesosConfig, OfferStrategyFilter offerStrategyFilter, ApplicationEventPublisher applicationEventPublisher, Supplier<UUID> uuidSupplier, StateRepository stateRepository, TaskMaterializer taskMaterializer, FrameworkInfoFactory frameworkInfoFactory, CredentialFactory credentialFactory) {
+        this.mesosConfig = mesosConfig;
+        this.offerStrategyFilter = offerStrategyFilter;
+        this.applicationEventPublisher = applicationEventPublisher;
+        this.uuidSupplier = uuidSupplier;
+        this.stateRepository = stateRepository;
+        this.taskMaterializer = taskMaterializer;
+        this.frameworkInfoFactory = frameworkInfoFactory;
+        this.credentialFactory = credentialFactory;
+    }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
@@ -111,6 +116,7 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
 
     @Override
     public void resourceOffers(SchedulerDriver schedulerDriver, List<Protos.Offer> offers) {
+        logger.info("Initiating new offer round of " + offers.size() + " offers");
         AtomicInteger acceptedOffers = new AtomicInteger(0);
         AtomicInteger rejectedOffers = new AtomicInteger(0);
         offers.stream()
@@ -132,12 +138,15 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
 
     @Override
     public void offerRescinded(SchedulerDriver schedulerDriver, Protos.OfferID offerID) {
-        logger.info("Offer rescinded offerId=" + offerID.getValue());
+        logger.warn("Offer rescinded offerId=" + offerID.getValue());
     }
 
     @Override
     public void statusUpdate(SchedulerDriver schedulerDriver, Protos.TaskStatus taskStatus) {
-        logger.debug("Received status update for taskID=" + taskStatus.getTaskId().getValue() + " state=" + taskStatus.getState() + " message='" + taskStatus.getMessage() + "' ");
+        if (taskStatus.getState().equals(Protos.TaskState.TASK_ERROR)) {
+            logger.warn("Received status update for taskID=" + taskStatus.getTaskId().getValue() + " state=" + taskStatus.getState() + " message='" + taskStatus.getMessage() + "' ");
+        }
+
         applicationEventPublisher.publishEvent(new StatusUpdateEvent(taskStatus));
     }
 
