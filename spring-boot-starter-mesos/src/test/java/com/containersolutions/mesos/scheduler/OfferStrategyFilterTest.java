@@ -8,28 +8,22 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 
 @RunWith(MockitoJUnitRunner.class)
 public class OfferStrategyFilterTest {
+    private final HashMap<String, ResourceRequirement> resourceRequirements = new HashMap<>();
     private Protos.Offer offer = TestHelper.createDummyOffer();
-
     @Mock
     private ResourceRequirement resourceRequirement;
-
-    private final HashMap<String, ResourceRequirement> resourceRequirements = new HashMap<>();
-
     private OfferStrategyFilter filter = new OfferStrategyFilter(resourceRequirements);
     private String taskId = "taskId";
 
@@ -55,7 +49,8 @@ public class OfferStrategyFilterTest {
         verify(resourceRequirement).check("requirement 1", taskId, offer);
     }
 
-    @Test @Ignore("A nice to have that's not ready yet")
+    @Test
+    @Ignore("A nice to have that's not ready yet")
     public void willNotCheckSecondRequirementIfFirstRejects() throws Exception {
         ResourceRequirement decliningRequirement = mock(ResourceRequirement.class);
         resourceRequirements.put("requirement 2", decliningRequirement);

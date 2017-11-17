@@ -8,9 +8,7 @@ import org.apache.mesos.SchedulerDriver;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -60,7 +58,6 @@ public class UniversalSchedulerTest {
         OfferEvaluation offerEvaluation = OfferEvaluation.accept("test", taskId, offer, Collections.emptyMap(), Collections.emptyList(), Collections.emptyList());
         when(offerStrategyFilter.evaluate(taskId, offer)).thenReturn(offerEvaluation);
         when(taskMaterializer.createProposal(offerEvaluation)).thenReturn(new TaskProposal(offer, task));
-        when(taskInfoFactory.create(taskId, offer, Collections.emptyList(), new ExecutionParameters(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList()))).thenReturn(task);
 
         scheduler.resourceOffers(schedulerDriver, Collections.singletonList(offer));
 

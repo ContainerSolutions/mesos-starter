@@ -6,8 +6,7 @@ import com.containersolutions.mesos.scheduler.state.StateRepository;
 import org.apache.mesos.Protos;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -26,6 +25,12 @@ public class TaskReaperTest {
 
     private TaskReaper taskReaper = new TaskReaper(stateRepository, instanceCount, universalScheduler);
 
+    private static Set<Protos.TaskInfo> tasksInfoSet(String... names) {
+        return Arrays.stream(names)
+                .map(TestHelper::createDummyTask)
+                .collect(Collectors.toSet());
+    }
+
     @Test
     public void willNotKillTasksWhenCountIsFullfilled() throws Exception {
         when(stateRepository.allTaskInfos()).thenReturn(tasksInfoSet("task 1", "task 2"));
@@ -42,11 +47,5 @@ public class TaskReaperTest {
         taskReaper.onApplicationEvent(new InstanceCountChangeEvent(1));
 
         verify(universalScheduler).killTask(any(Protos.TaskID.class));
-    }
-
-    private static Set<Protos.TaskInfo> tasksInfoSet(String ... names) {
-        return Arrays.stream(names)
-                .map(TestHelper::createDummyTask)
-                .collect(Collectors.toSet());
     }
 }
