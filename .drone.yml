@@ -1,0 +1,34 @@
+pipeline:
+  publish:
+    image: maven:3.5-jdk-9
+    environment:
+      - MAVEN_USERNAME=drone
+    secrets:
+      - maven_password
+    commands:
+      - mkdir -p ~/.m2
+      - >
+        echo '<?xml version="1.0" encoding="UTF-8"?>
+        <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+          <!--mirrors>
+            <mirror>
+              <id>humio-public</id>
+              <url>https://nexus.internal.humio.com/repository/maven-central/</url>
+              <mirrorOf>central</mirrorOf>
+            </mirror>
+          </mirrors-->
+          <servers>
+            <server>
+              <id>humio-releases</id>
+              <username>$${MAVEN_USERNAME}</username>
+              <password>$${MAVEN_PASSWORD}</password>
+            </server>
+            <server>
+              <id>humio-public</id>
+              <username>$${MAVEN_USERNAME}</username>
+              <password>$${MAVEN_PASSWORD}</password>
+            </server>
+          </servers>
+        </settings>' > ~/.m2/settings.xml
+      - mvn -B versions:set versions:commit -DnewVersion=${DRONE_BUILD_NUMBER}
+      - mvn -B deploy
