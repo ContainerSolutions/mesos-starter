@@ -30,5 +30,5 @@ pipeline:
             </server>
           </servers>
         </settings>' > ~/.m2/settings.xml
-      - mvn -B versions:set versions:commit -DnewVersion=${DRONE_BUILD_NUMBER}
+      - mvn -B versions:set versions:commit -DnewVersion=build-${DRONE_BUILD_NUMBER}
       - mvn -B deploy
