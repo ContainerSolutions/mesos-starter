@@ -8,11 +8,3 @@ reviewers:
     members:
      - mwl
     required: 1
-  -
-    name: users
-    members:
-     - philwinder
-     - frankscholten
-     - sadovnikov
-     - jocatalin
-    required: 1
