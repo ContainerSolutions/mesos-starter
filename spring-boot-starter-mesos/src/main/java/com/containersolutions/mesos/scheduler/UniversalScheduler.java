@@ -11,7 +11,6 @@ import org.apache.mesos.MesosSchedulerDriver;
 import org.apache.mesos.Protos;
 import org.apache.mesos.Scheduler;
 import org.apache.mesos.SchedulerDriver;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,13 +25,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import static java.util.Arrays.asList;
-
 public class UniversalScheduler implements Scheduler, ApplicationListener<ApplicationReadyEvent> {
     protected final Log logger = LogFactory.getLog(getClass());
 
     @Value("${mesos.master}")
     protected String mesosMaster;
+
+    @Value("${mesos.zookeeper.server}")
+    protected String zookeeperMaster;
 
     @Value("${spring.application.name}")
     protected String applicationName;
@@ -74,16 +74,18 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
     }
 
     public void start() {
-        logger.info("Starting Framework");
+        logger.info("Starting Mesos-Starter Framework");
 
         MesosSchedulerDriver driver;
         Protos.Credential credential = credentialFactory.create();
+        final String zookeeperUrl = "zk://" + zookeeperMaster + "/mesos";
         if (credential.isInitialized()) {
-            logger.debug("Starting scheduler driver with supplied credentials for principal: " + credential.getPrincipal());
-            driver = new MesosSchedulerDriver(this, frameworkInfoFactory.create().build(), mesosMaster, credential);
+            logger.debug("Starting scheduler driver with supplied credentials for principal=" + credential.getPrincipal());
+            driver = new MesosSchedulerDriver(this, frameworkInfoFactory.create().build(), zookeeperUrl, credential);
         } else {
             logger.debug("Starting scheduler driver without authorisation.");
-            driver = new MesosSchedulerDriver(this, frameworkInfoFactory.create().build(), mesosMaster);
+            //TODO: The follow MesosSchedulerDriver constructor will be deprecated at some point.
+            driver = new MesosSchedulerDriver(this, frameworkInfoFactory.create().build(), zookeeperUrl);
         }
 
         if (!this.driver.compareAndSet(null, driver)) {
@@ -158,7 +160,7 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
 
     @Override
     public void disconnected(SchedulerDriver schedulerDriver) {
-        logger.debug("Disconnected");
+        logger.warn("Disconnected");
     }
 
     @Override
@@ -175,7 +177,7 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
 
     @Override
     public void error(SchedulerDriver schedulerDriver, String message) {
-        logger.info("Received error: " + message);
+        logger.warn("Received error: " + message);
         applicationEventPublisher.publishEvent(new ErrorEvent(message));
     }
 
