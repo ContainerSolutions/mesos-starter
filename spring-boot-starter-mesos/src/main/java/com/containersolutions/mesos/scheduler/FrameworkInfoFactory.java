@@ -36,7 +36,7 @@ public class FrameworkInfoFactory {
                 .addRoles(mesosConfig.getRole())
                 .addCapabilities(Protos.FrameworkInfo.Capability.newBuilder().setType(Protos.FrameworkInfo.Capability.Type.MULTI_ROLE).build())
                 .setCheckpoint(true)
-                .setFailoverTimeout(60.0)
+                .setFailoverTimeout(150.0)
                 .setId(stateRepository.getFrameworkID().orElseGet(() -> Protos.FrameworkID.newBuilder().setValue("").build()));
         Protos.Credential credential = credentialFactory.create();
         if (credential.isInitialized()) {

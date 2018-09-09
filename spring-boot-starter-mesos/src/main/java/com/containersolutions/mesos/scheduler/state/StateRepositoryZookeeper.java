@@ -1,7 +1,9 @@
 package com.containersolutions.mesos.scheduler.state;
 
 import com.containersolutions.mesos.scheduler.events.FrameworkRegistreredEvent;
+import com.containersolutions.mesos.scheduler.events.FrameworkRemovedEvent;
 import com.containersolutions.mesos.scheduler.events.StatusUpdateEvent;
+import com.containersolutions.mesos.scheduler.events.TearDownFrameworkEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mesos.Protos;
@@ -50,7 +52,9 @@ public class StateRepositoryZookeeper implements StateRepository {
         if (value.length == 0) {
             return Optional.empty();
         }
-        return Optional.of(Protos.FrameworkID.newBuilder().setValue(((String) SerializationUtils.deserialize(value))).build());
+        final Optional<Protos.FrameworkID> frameworkID = Optional.of(Protos.FrameworkID.newBuilder().setValue(((String) SerializationUtils.deserialize(value))).build());
+        logger.info("Signing in frameworkName=" + frameworkName + " using FrameworkId=" + frameworkID.map(Protos.FrameworkID::getValue).orElse("NULL"));
+        return frameworkID;
     }
 
     public void connect() {
@@ -78,6 +82,16 @@ public class StateRepositoryZookeeper implements StateRepository {
                             .collect(Collectors.toSet())
             );
         }
+    }
+
+    @EventListener
+    public void onFrameworkRemovedEvent(FrameworkRemovedEvent event) throws Exception {
+        cleanup();
+    }
+
+    @EventListener
+    public void onTearDownFrameworkEvent(TearDownFrameworkEvent event) throws Exception {
+        cleanup();
     }
 
     @Override
@@ -110,7 +124,6 @@ public class StateRepositoryZookeeper implements StateRepository {
         }
     }
 
-    @PreDestroy
     public void cleanup() throws ExecutionException, InterruptedException {
         zkState.names().get().forEachRemaining(name -> {
             try {

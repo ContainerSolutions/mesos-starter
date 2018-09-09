@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.EventListener;
 
 import javax.annotation.PreDestroy;
 import java.util.Collections;
@@ -97,9 +98,11 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
     }
 
     @PreDestroy
-    public void stop() throws ExecutionException, InterruptedException {
-        driver.get().stop(false);
-        logger.info("Scheduler stopped");
+    public void stop() {
+        if (driver.get() != null) {
+            driver.get().abort();
+            logger.info("Driver aborted");
+        }
     }
 
 
@@ -177,7 +180,11 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
 
     @Override
     public void error(SchedulerDriver schedulerDriver, String message) {
-        logger.warn("Received error: " + message);
+        logger.error("Received error: " + message);
+
+        if (message.equalsIgnoreCase("Framework has been removed")) {
+            applicationEventPublisher.publishEvent(new FrameworkRemovedEvent(message));
+        }
         applicationEventPublisher.publishEvent(new ErrorEvent(message));
     }
 
@@ -188,4 +195,12 @@ public class UniversalScheduler implements Scheduler, ApplicationListener<Applic
     public void sendFrameworkMessage(String executorId, String slaveId, byte[] data) {
         driver.get().sendFrameworkMessage(Protos.ExecutorID.newBuilder().setValue(executorId).build(), Protos.SlaveID.newBuilder().setValue(slaveId).build(), data);
     }
+
+    @EventListener
+    public void onTearDownFrameworkEvent(TearDownFrameworkEvent event) {
+        driver.get().stop();
+        logger.info("Driver stopped");
+        driver.set(null);
+    }
+
 }

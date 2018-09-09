@@ -202,4 +202,8 @@ public class MesosSchedulerConfiguration {
         return new CredentialFactory(mesosConfig);
     }
 
+    @Bean
+    public TeardownManager teardownManager() {
+        return new TeardownManager();
+    }
 }
